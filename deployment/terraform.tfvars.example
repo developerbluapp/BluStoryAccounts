@@ -1,0 +1,5 @@
+project_id = "caesaraiapis"
+service_name = "blustoryappframeconv"
+region = "us-central1"
+key_file_path = "secrets/service_account.json"
+secret_id = "blustoryapp-vc-secret"
