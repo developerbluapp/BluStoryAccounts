@@ -1,4 +1,5 @@
 #!/bin/bash
+artifact_repo="us-central1-docker.pkg.dev/caesaraiapis/caesaraiapis"
 image="blustoryframeconv"
 
 newv=$(head -c 32 /dev/urandom | sha256sum | cut -d' ' -f1)
@@ -16,7 +17,7 @@ docker compose build
 docker push palondomus/$image:$newv
 
 
-export TF_VAR_image="palondomus/$image:$newv"
+export TF_VAR_image="$artifact_repo/$image:$newv"
 cd deployment
 # Terraform Push Google Cloud
 terraform init
