@@ -1,7 +1,7 @@
 # -----------------------------------
 # Deploy Cloud Run service
 # -----------------------------------
-resource "google_cloud_run_service" "app" {
+resource "google_cloud_run_service" "blu_story_app" {
   name     = var.service_name
   project  = var.project_id
   location = var.region
@@ -19,7 +19,7 @@ resource "google_cloud_run_service" "app" {
           mount_path = "/secrets/service-key"
         }
 
-        # Tell the app where credentials are
+        # Tell the blu_story_app where credentials are
         env {
           name  = "GOOGLE_APPLICATION_CREDENTIALS"
           value = "/secrets/service-key/latest"
@@ -49,9 +49,9 @@ resource "google_cloud_run_service" "app" {
 # Allow public access (optional)
 # -----------------------------------
 resource "google_cloud_run_service_iam_member" "invoker" {
-  location = google_cloud_run_service.app.location
+  location = google_cloud_run_service.blu_story_app.location
   project  = var.project_id
-  service  = google_cloud_run_service.app.name
+  service  = google_cloud_run_service.blu_story_app.name
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
@@ -60,5 +60,5 @@ resource "google_cloud_run_service_iam_member" "invoker" {
 # Output service URL
 # -----------------------------------
 output "url" {
-  value = google_cloud_run_service.app.status[0].url
+  value = google_cloud_run_service.blu_story_app.status[0].url
 }

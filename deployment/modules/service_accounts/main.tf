@@ -1,40 +1,20 @@
-
-# -----------------------------------
-# Create Secret Manager secret + version
-# -----------------------------------
-resource "google_secret_manager_secret" "service_account_key" {
-  secret_id = var.secret_id
-  replication {
-     auto {}
-  }
+# Create the service account
+resource "google_service_account" "blu_story_app_sa" {
+    project      = var.project_id
+  account_id   = "blu-story-app-storage-sa"
+  display_name = "My Storage Service Account"
 }
 
-resource "google_secret_manager_secret_version" "service_account_key_version" {
-  secret      = google_secret_manager_secret.service_account_key.id
-  secret_data = file(var.key_file_path)
-}
-
-# -----------------------------------
-# Create Cloud Run service account
-# -----------------------------------
-resource "google_service_account" "cloud_run_sa" {
-  account_id   = "cloud-run-sa"
-  display_name = "Cloud Run Service Account"
-}
-
-# -----------------------------------
-# Allow service account access to secret
-# -----------------------------------
-resource "google_secret_manager_secret_iam_member" "secret_access" {
-  secret_id = google_secret_manager_secret.service_account_key.id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.cloud_run_sa.email}"
-}
-
-# Optional example: Storage access
-resource "google_project_iam_member" "storage_access" {
+# Grant Storage Admin role to the service account
+resource "google_project_iam_member" "blu_story_app_sa_role" {
   project = var.project_id
-  role    = "roles/storage.objectViewer"
-  member  = "serviceAccount:${google_service_account.cloud_run_sa.email}"
+  role    = "roles/storage.admin"
+  member  = "serviceAccount:${google_service_account.blu_story_app_sa.email}"
 }
 
+# Create a key for the service account (JSON)
+resource "google_service_account_key" "blu_story_app_sa_key" {
+  service_account_id = google_service_account.blu_story_app_sa.name
+  key_algorithm      = "KEY_ALG_RSA_2048"
+  private_key_type   = "TYPE_GOOGLE_CREDENTIALS_FILE"
+}
