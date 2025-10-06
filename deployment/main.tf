@@ -41,8 +41,8 @@ module "cloud_run" {
   service_name          = var.service_name
   region                = var.region
   image                 = var.image
-  service_account_email = module.service_accounts.cloud_run_sa_email
-  secret_id             = module.service_accounts.secret_id
+  service_account_email = module.secret_access.cloud_run_sa_email
+  secret_id             = module.secret_access.secret_id
   depends_on           = [module.secret_access, module.service_accounts]
 }
 
