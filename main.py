@@ -44,7 +44,7 @@ os.makedirs(TEMP_DIR, exist_ok=True)
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the BluStory App Image to Video Converter API"}
+    return {"message": "Welcome to the BluStory App Image to Video Converter API."}
 
 @app.post("/convert-to-video/")
 async def convert_images_to_video(
