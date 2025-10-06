@@ -8,13 +8,13 @@ newv=$(head -c 32 /dev/urandom | sha256sum | cut -d' ' -f1)
 gcloud auth application-default login
 
 
-export FULL_IMAGE=palondomus/$image:$newv
+export FULL_IMAGE=$artifact_repo/$image:$newv
 export IMAGE=$image
 export NEWV=$newv
 
 # Push Docker
 docker compose build
-docker push palondomus/$image:$newv
+docker push $artifact_repo/$image:$newv
 
 
 export TF_VAR_image="$artifact_repo/$image:$newv"
