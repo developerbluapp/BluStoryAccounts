@@ -30,5 +30,17 @@ module "secret_access" {
   depends_on     = [module.service_accounts]
 }
 
-
+# ----------------------------
+# 2. Cloud Run module
+# ----------------------------
+module "cloud_run" {
+  source                = "./modules/cloud_run"
+  project_id            = var.project_id
+  service_name          = var.service_name
+  region                = var.region
+  image                 = var.image
+  service_account_email = module.secret_access.cloud_run_sa_email
+  secret_id             = module.secret_access.secret_id
+  depends_on           = [module.secret_access, module.service_accounts]
+}
 
