@@ -1,5 +1,5 @@
 # Use the official Python 3.9 image
-FROM python:3.10
+FROM python:3.11-slim
 RUN export PYTHONPATH=$PWD
 RUN apt-get update && apt-get install curl libsm6 libxext6 uvicorn -y
 RUN pip install uvicorn
