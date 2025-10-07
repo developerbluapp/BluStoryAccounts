@@ -8,32 +8,33 @@ resource "google_cloud_run_service" "blu_story_app" {
 
   template {
     spec {
+      # Service account running Cloud Run
       service_account_name = var.service_account_email
 
       containers {
         image = var.image
 
-        # Mount secret
+        # Mount the Secret Manager secret
         volume_mounts {
-          name       = "service-key"
+          name       = var.secret_id
           mount_path = "/secrets/service-key"
         }
 
-        # Tell the blu_story_app where credentials are
+        # Tell the app where credentials are
         env {
           name  = "GOOGLE_APPLICATION_CREDENTIALS"
-          value = "/secrets/service-key/latest"
+          value = "/secrets/service-key/service_account.json"
         }
       }
-      
 
+      # Define the volume with the secret
       volumes {
-        name = "service-key"
+        name = var.secret_id
         secret {
           secret_name = var.secret_id
           items {
-            key  = "latest"
-            path = "latest"
+            key  = "latest"     # The key name in Secret Manager
+            path = "service_account.json"     # File name inside container
           }
         }
       }
@@ -55,11 +56,4 @@ resource "google_cloud_run_service_iam_member" "invoker" {
   service  = google_cloud_run_service.blu_story_app.name
   role     = "roles/run.invoker"
   member   = "allUsers"
-}
-
-# -----------------------------------
-# Output service URL
-# -----------------------------------
-output "url" {
-  value = google_cloud_run_service.blu_story_app.status[0].url
 }
