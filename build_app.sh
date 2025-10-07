@@ -1,6 +1,6 @@
 #!/bin/bash
 artifact_repo="palondomus"
-image="blustoryframeconv"
+image="blustoryframeconvert"
 
 newv=$(head -c 32 /dev/urandom | sha256sum | cut -d' ' -f1)
 
