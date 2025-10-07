@@ -8,7 +8,7 @@ newv=$(head -c 32 /dev/urandom | sha256sum | cut -d' ' -f1)
 gcloud auth application-default login
 
 
-export FULL_IMAGE="raushanraja/fastapi-hello-world:latest"
+export FULL_IMAGE="$artifact_repo/$image:$newv"
 export IMAGE=$image
 export NEWV=$newv
 
