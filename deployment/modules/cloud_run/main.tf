@@ -25,6 +25,7 @@ resource "google_cloud_run_service" "blu_story_app" {
           value = "/secrets/service-key/latest"
         }
       }
+      
 
       volumes {
         name = "service-key"
