@@ -8,7 +8,7 @@ newv=$(head -c 32 /dev/urandom | sha256sum | cut -d' ' -f1)
 gcloud auth application-default login
 
 
-export FULL_IMAGE="raushanraja/fastapi-hello-world:latest"
+export FULL_IMAGE=$artifact_repo/$image:$newv
 export IMAGE=$image
 export NEWV=$newv
 
@@ -17,7 +17,7 @@ export NEWV=$newv
 #docker push $artifact_repo/$image:$newv
 
 
-export TF_VAR_image="raushanraja/fastapi-hello-world:latest"
+export TF_VAR_image="$artifact_repo/$image:$newv"
 cd deployment
 # Terraform Push Google Cloud
 terraform init
