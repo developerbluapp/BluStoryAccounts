@@ -13,8 +13,8 @@ export IMAGE=$image
 export NEWV=$newv
 
 # Push Docker
-#docker compose build
-#docker push $artifact_repo/$image:$newv
+docker compose build
+docker push $artifact_repo/$image:$newv
 
 
 export TF_VAR_image="$artifact_repo/$image:$newv"
