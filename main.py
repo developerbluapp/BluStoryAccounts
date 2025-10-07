@@ -109,7 +109,7 @@ async def convert_images_to_video(
                 video_writer.write(frame)
 
         video_writer.release()
-        cv2.destroyAllWindows()
+        #cv2.destroyAllWindows()
 
         # Sanity check
         if not temp_video_path.exists() or os.path.getsize(temp_video_path) < 1024:
@@ -156,4 +156,4 @@ async def cleanup():
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8080)

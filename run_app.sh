@@ -9,9 +9,9 @@ export IMAGE=$image
 export NEWV=$newv
 
 # Push Docker
-docker compose build
+docker compose -f docker-compose.local.yml build 
 
-docker compose up
+docker compose -f docker-compose.local.yml up
 
 
 

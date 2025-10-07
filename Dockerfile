@@ -1,33 +1,30 @@
-# Use the official Python 3.9 image
-FROM python:3.11-slim
-RUN export PYTHONPATH=$PWD
-RUN apt-get update && apt-get install curl -y 
-# libsm6 libxext6 uvicorn libopencv-dev python3-opencv libpq5 
-RUN pip install uvicorn
-# Set the working directory to /code
-WORKDIR /code
-#VOLUME /home/amari/Desktop/MaturityAI/MaturityFastAPI /code
-# Copy the current directory contents into the container at /code
-COPY ./requirements.txt /code/requirements.txt
- 
-# Install requirements.txt 
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+# Lightweight Python image
+FROM python:3.11-slim AS runtime
 
+# Environment setup
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH="/home/user/.local/bin:$PATH"
 
-# Set up a new user named "user" with user ID 1000
+# Install system deps (headless)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user early (reduces COPY layer overhead)
 RUN useradd -m -u 1000 user
-# Switch to the "user" user
 USER user
-# Set home to the user's home directory
-ENV HOME=/home/user \
-	PATH=/home/user/.local/bin:$PATH
+WORKDIR /home/user/app
 
-# Set the working directory to the user's home directory
-WORKDIR $HOME/app
+# Copy and install requirements
+COPY --chown=user requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Copy the current directory contents into the container at $HOME/app setting the owner to the user
-COPY --chown=user . $HOME/app
+# Copy app source
+COPY --chown=user . .
 
 EXPOSE 8080
-#CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860","--reload"]
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080","--reload"]
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
