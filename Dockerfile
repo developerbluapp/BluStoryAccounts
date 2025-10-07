@@ -1,7 +1,8 @@
 # Use the official Python 3.9 image
 FROM python:3.11-slim
 RUN export PYTHONPATH=$PWD
-RUN apt-get update && apt-get install curl libsm6 libxext6 uvicorn libopencv-dev python3-opencv libpq5  -y
+RUN apt-get update && apt-get install curl -y 
+# libsm6 libxext6 uvicorn libopencv-dev python3-opencv libpq5 
 RUN pip install uvicorn
 # Set the working directory to /code
 WORKDIR /code
