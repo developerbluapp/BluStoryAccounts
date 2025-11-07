@@ -3,5 +3,5 @@ terraform.tfstate
 terraform.tfstate.backup
 .terraform.tfstate.lock.info
 .terraform/
-service_account.json
+deployment/secrets/
 terraform.tfvars
