@@ -1,6 +1,6 @@
 #!/bin/bash
 artifact_repo="palondomus"
-image="blustoryframeconvert"
+image="blustoryconvert"
 
 newv=$(head -c 32 /dev/urandom | sha256sum | cut -d' ' -f1)
 
@@ -25,9 +25,12 @@ terraform plan
 terraform apply -auto-approve
 cd ..
 # Push Github
-git add .
-git commit -m "$1"
-git push origin -u main:main
+if [[ "$1" == "--commit" && -n "$2" ]]; then
+  msg="$2"
+  git add .
+  git commit -m "$msg"
+  git push origin -u main:main
+fi
 
 docker compose up
 

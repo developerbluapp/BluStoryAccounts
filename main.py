@@ -1,5 +1,7 @@
+import datetime
+
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse,RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 import cv2
@@ -33,7 +35,7 @@ app.add_middleware(
 # Google Cloud Storage setup
 # ---------------------------
 GCS_BUCKET_NAME = "blustoryapp"   # Replace with your bucket name
-GCS_PROJECT_ID = "caesaraiapis"   # Replace with your project ID
+GCS_PROJECT_ID = "blustoryapp"   # Replace with your project ID
 
 storage_client = storage.Client(project=GCS_PROJECT_ID)
 bucket = storage_client.bucket(GCS_BUCKET_NAME)
@@ -118,9 +120,15 @@ async def convert_images_to_video(
         # Upload to GCS
         gcs_blob = bucket.blob(f"videos/{video_name}")
         gcs_blob.upload_from_filename(str(temp_video_path), content_type="video/webm")
-        gcs_blob.make_public()
         gcs_blob.cache_control = 'no-cache, max-age=0'
-        gcs_blob.patch()
+        gcs_blob.patch()  # Update metadata
+        url = gcs_blob.generate_signed_url(
+            version="v4",
+            expiration=datetime.timedelta(minutes=15),
+            method="GET",
+        )
+
+
 
         # Cleanup
         temp_video_path.unlink(missing_ok=True)
@@ -129,7 +137,7 @@ async def convert_images_to_video(
 
         return {
             "message": "Video created and uploaded successfully",
-            "video_url": gcs_blob.public_url,
+            "video_url": url,
             "fps": fps,
             "seconds_per_image": seconds_per_image,
             "total_frames": len(image_paths) * frames_per_image,
@@ -143,6 +151,15 @@ async def convert_images_to_video(
             Path(path).unlink(missing_ok=True)
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get ("/get-video/{video_name}")
+async def download_video(video_name: str):
+    blob = bucket.blob(f"videos/{video_name}")
+    url = blob.generate_signed_url(
+        version="v4",
+        expiration=datetime.timedelta(minutes=15),
+        method="GET",
+    )
+    return RedirectResponse(url=url)
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""

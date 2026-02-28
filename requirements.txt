@@ -1,10 +1,11 @@
 # --- Core FastAPI stack ---
 fastapi==0.104.1
 uvicorn==0.24.0
-python-multipart
+python-multipart==0.0.6
 # --- Data / Image handling ---
-opencv-python-headless
-Pillow
+
+opencv-python-headless==4.13.0.92
+Pillow==12.1.1
 qrcode==7.4.2
 
 # --- Config & Auth ---
@@ -12,8 +13,8 @@ python-dotenv==1.0.0
 PyJWT==2.8.0
 
 # --- Google Cloud ---
-google-cloud-storage
-packaging
+google-cloud-storage==3.9.0
+packaging==26.0
 # --- Dependencies pinned by FastAPI (auto-installed) ---
 # pydantic, starlette, anyio, h11, sniffio, typing-extensions
 # You don’t need to list them unless you want strict version control

@@ -4,7 +4,7 @@
 # ==========================================================
 
 # --- CONFIGURATION ---
-PROJECT_ID="caesaraiapis"              # e.g. my-gcp-project
+PROJECT_ID="blustoryapp"              # e.g. my-gcp-project
 SERVICE_ACCOUNT_NAME="blustory-storage-sa"   # choose a short, unique name
 DISPLAY_NAME="Full Storage Admin Service Account"
 KEY_FILE_PATH="./service_account.json"  # optional: where to save key file
