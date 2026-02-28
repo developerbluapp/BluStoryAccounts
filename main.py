@@ -159,7 +159,7 @@ async def download_video(video_name: str):
         expiration=datetime.timedelta(minutes=15),
         method="GET",
     )
-    return RedirectResponse(url=url)
+    return {"url": url}
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
