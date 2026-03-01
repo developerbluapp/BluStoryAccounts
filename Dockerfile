@@ -15,15 +15,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Create non-root user early (reduces COPY layer overhead)
 RUN useradd -m -u 1000 user
 USER user
-WORKDIR /home/user/app
 
 # Copy and install requirements
 COPY --chown=user requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy app source
-COPY --chown=user . .
+COPY . /home/user/blustorymicroservices/BluStoryLicenseHolders/
+
+# Set PYTHONPATH so Python can find the top-level package
+ENV PYTHONPATH=/home/user
+WORKDIR /home/user/blustorymicroservices/BluStoryLicenseHolders
 
 EXPOSE 8080
 

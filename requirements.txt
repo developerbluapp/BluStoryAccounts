@@ -15,6 +15,9 @@ PyJWT==2.8.0
 # --- Google Cloud ---
 google-cloud-storage==3.9.0
 packaging==26.0
+
+supabase
+psycopg2-binary
 # --- Dependencies pinned by FastAPI (auto-installed) ---
 # pydantic, starlette, anyio, h11, sniffio, typing-extensions
 # You don’t need to list them unless you want strict version control
