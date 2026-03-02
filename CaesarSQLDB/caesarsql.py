@@ -1,9 +1,11 @@
-import time
 import json
-import psycopg
 import subprocess
-from urllib.parse import urlparse
+import time
 from typing import Any, Callable, Union
+from urllib.parse import urlparse
+
+import psycopg
+
 
 class CaesarSQL:
     def __init__(self) -> None:

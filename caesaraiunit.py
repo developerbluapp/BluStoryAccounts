@@ -1,7 +1,8 @@
 import json
-import requests
-import unittest
 import sys
+import unittest
+
+import requests
 
 uri = "http://127.0.0.1:8080" #"https://blacktechdivisionreward-hrjw5cc7pa-uc.a.run.app"
 

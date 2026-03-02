@@ -1,5 +1,7 @@
-from pydantic import BaseModel
 from typing import ClassVar
+
+from pydantic import BaseModel
+
 
 class RoleSettings(BaseModel):
     license_holder: ClassVar[str] = "license_holder"

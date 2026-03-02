@@ -1,1 +1,1 @@
-from .Settings import Settings, SupabaseSettings, EmailSettings, RoleSettings
+from .Settings import EmailSettings, RoleSettings, Settings, SupabaseSettings

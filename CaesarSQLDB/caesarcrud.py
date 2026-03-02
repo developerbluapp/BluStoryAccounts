@@ -1,6 +1,10 @@
 import base64
-from CaesarSQLDB.caesarsql import CaesarSQL
+
 from psycopg import ProgrammingError
+
+from CaesarSQLDB.caesarsql import CaesarSQL
+
+
 class CaesarCRUD:
     def __init__(self) -> None:
         self.caesarsql = CaesarSQL()

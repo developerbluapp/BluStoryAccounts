@@ -1,6 +1,9 @@
-import psycopg2
 import os
 from urllib.parse import urlparse
+
+import psycopg2
+
+
 def run_migrations():
     conn = psycopg2.connect(
         user=os.environ["DB_USER"],

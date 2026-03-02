@@ -1,6 +1,7 @@
 import hashlib
 import uuid
 
+
 class CaesarHash:
     @staticmethod
     def hash_text_auth(text):

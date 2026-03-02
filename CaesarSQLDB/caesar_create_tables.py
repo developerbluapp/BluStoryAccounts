@@ -1,4 +1,6 @@
 from CaesarSQLDB.caesarcrud import CaesarCRUD
+
+
 class CaesarCreateTables:
     def __init__(self) -> None:
         self.usersfields = ("email","password")

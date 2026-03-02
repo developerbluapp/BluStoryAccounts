@@ -1,6 +1,10 @@
-import jwt
 import hashlib
+
+import jwt
+
 from CaesarSQLDB.caesarcrud import CaesarCRUD
+
+
 class CaesarJWT:
     def __init__(self,caesarcrud : CaesarCRUD) -> None:
         self.caesarcrud = caesarcrud

@@ -1,9 +1,11 @@
 
+import os
 from functools import lru_cache
 
-import os
+from blustorymicroservices.BluStoryLicenseHolders.settings import (
+    EmailSettings, RoleSettings, Settings, SupabaseSettings)
 
-from blustorymicroservices.BluStoryLicenseHolders.settings import Settings, SupabaseSettings, EmailSettings, RoleSettings
+
 @lru_cache
 def get_settings() -> Settings:
     return Settings(
