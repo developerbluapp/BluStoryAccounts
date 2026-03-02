@@ -23,10 +23,10 @@ case "$MODE" in
     ;;
   --local)
     echo "🔧 Building LOCAL environment..."
-    docker compose -f docker-compose.local.yml build \
+    docker compose -f docker-compose.local.yml build web \
       --build-arg DOCKERFILE=Dockerfile.local
 
-    docker compose -f docker-compose.local.yml up
+    docker compose -f docker-compose.local.yml up web
     ;;
 
   --prod)
