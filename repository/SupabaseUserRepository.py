@@ -43,7 +43,7 @@ class SupabaseUserRepository:
     def create_student(self, username: str, password: str, license_holder_id: UUID) -> Student:
         try:
             settings = get_settings()
-            role_response = self._client.table("roles").select("*").eq("name", UserRoles.LICENSE_HOLDER).maybe_single().execute()
+            role_response = self._client.table("roles").select("*").eq("name", UserRoles.STUDENT).maybe_single().execute()
             fake_email = f"{username}{settings.email.suffix}"
             response = self._client.auth.admin.create_user({
                 "email": fake_email,
