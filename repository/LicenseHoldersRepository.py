@@ -14,6 +14,7 @@ from blustorymicroservices.BluStoryLicenseHolders.settings.Settings import \
     Settings
 from blustorymicroservices.BluStoryLicenseHolders.models.responses import SupabaseUserResponse
 from supabase import Client, create_client
+from blustorymicroservices.BluStoryLicenseHolders.models.responses.api.licenseholders.LicenseHolderResponse import LicenseHolderResponse
 from blustorymicroservices.BluStoryLicenseHolders.models.exceptions.students import UserAlreadyExistsException
 from gotrue.errors import AuthApiError
 class LicenseHoldersRepository:
@@ -56,7 +57,7 @@ class LicenseHoldersRepository:
                 raise HTTPException(status_code=400, detail=session_response["error"]["message"])
             license_holder = self._map_supabase_auth_user_to_license_holder(SupabaseUserResponse(**response.user.model_dump()))
             return LicenseHolderSession(
-                licenseholder=LicenseHolder(id=license_holder.id,email=license_holder.email,username=license_holder.user_metadata.get("username")),
+                licenseholder=license_holder,
                 session=session_response.session
             )
         except AuthApiError as e:
@@ -75,7 +76,7 @@ class LicenseHoldersRepository:
             user_response = self._client.auth.get_user(session_response.session.access_token)
             license_holder = self._map_supabase_auth_user_to_license_holder(SupabaseUserResponse(**user_response.user.model_dump()))
             return LicenseHolderSession(
-                licenseholder=LicenseHolder(id=license_holder.id,email=license_holder.email,username=license_holder.user_metadata.get("username")),
+                licenseholder=license_holder,
                 session=session_response.session
             )
         except AuthApiError as e:

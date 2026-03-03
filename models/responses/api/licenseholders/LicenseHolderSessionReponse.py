@@ -1,7 +1,7 @@
 
 from pydantic import BaseModel
 from gotrue.types import Session
-from blustorymicroservices.BluStoryLicenseHolders.models.dtos import LicenseHolder
+from blustorymicroservices.BluStoryLicenseHolders.models.responses.api.licenseholders.LicenseHolderResponse import LicenseHolderResponse
 class LicenseHolderSessionResponse(BaseModel):
-    licenseholder: LicenseHolder
+    licenseholder: LicenseHolderResponse
     session: Session
