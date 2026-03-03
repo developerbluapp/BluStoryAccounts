@@ -8,4 +8,3 @@ from supabase import Client, create_client
 
 def get_supabase_client(settings: Settings = Depends(get_settings)) -> Client:
     return create_client(settings.supabase.url, settings.supabase.service_role_key)
-

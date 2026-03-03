@@ -1,1 +1,2 @@
-from .UserService import UserService
+from .StudentService import StudentService
+from .AuthService import AuthService

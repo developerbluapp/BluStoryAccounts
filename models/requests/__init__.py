@@ -1,2 +1,3 @@
 from .CreateUserRequest import CreateUserRequest
 from .UpdateStudentRequest import UpdateStudentRequest
+from .SignupRequest import SignupRequest

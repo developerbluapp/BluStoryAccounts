@@ -6,7 +6,7 @@ from blustorymicroservices.BluStoryLicenseHolders.repository.SupabaseUserReposit
     SupabaseUserRepository
 
 
-class UserService:
+class StudentService:
     def __init__(self, user_repo: SupabaseUserRepository):
         self._user_repo = user_repo
     def register_student(self, username: str, password: str, license_holder_id: UUID) -> Student:

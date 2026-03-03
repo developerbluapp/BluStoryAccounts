@@ -1,3 +1,5 @@
 from .api.CreatedStudentResponse import CreatedStudentResponse
 from .external.SupabaseUserResponse import SupabaseUserResponse
 from .api.StudentResponse import StudentResponse
+from .api.SignedupResponse import SignedupResponse
+from .api.LicenseHolderSessionReponse import LicenseHolderSessionResponse

@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from fastapi.middleware.cors import CORSMiddleware
-from blustorymicroservices.BluStoryLicenseHolders.routers import students
+from blustorymicroservices.BluStoryLicenseHolders.routers import students,licenseholder,auth
 from blustorymicroservices.BluStoryLicenseHolders.models.exceptions import AppException
 from fastapi.exceptions import RequestValidationError
 from starlette import status
@@ -27,7 +27,8 @@ app.add_middleware(
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 app.include_router(students.router)
-
+app.include_router(licenseholder.router)
+app.include_router(auth.router)
 # main.py
 @app.exception_handler(AppException)
 async def app_exception_handler(request: Request, exc: AppException):

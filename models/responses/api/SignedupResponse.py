@@ -1,13 +1,16 @@
-# --- Data models ---
 
-from datetime import datetime
+import datetime
 from typing import Any
-
-from pydantic import BaseModel, ConfigDict, EmailStr
+from datetime import datetime
 from uuid import UUID
 
+from pydantic import BaseModel, EmailStr, EmailStr
 
-class LicenseHolder(BaseModel):
+
+
+
+
+class SignedupResponse(BaseModel):
     id: UUID
     email: EmailStr | None = None
     phone: str | None = None
