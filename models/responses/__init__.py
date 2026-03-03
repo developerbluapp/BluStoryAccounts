@@ -1,5 +1,7 @@
-from .api.CreatedStudentResponse import CreatedStudentResponse
+from .api.students.CreatedStudentResponse import CreatedStudentResponse
 from .external.SupabaseUserResponse import SupabaseUserResponse
-from .api.StudentResponse import StudentResponse
-from .api.SignedupResponse import SignedupResponse
-from .api.LicenseHolderSessionReponse import LicenseHolderSessionResponse
+from .api.students.StudentResponse import StudentResponse
+from .api.licenseholders.LicenseHolderResponse import LicenseHolderResponse
+
+from .api.students.DeletedStudentResponse import DeletedStudentResponse
+from .api.students.PatchedStudentResponse import PatchedStudentResponse

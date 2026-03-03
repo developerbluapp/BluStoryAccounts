@@ -1,1 +1,2 @@
-from .SupabaseUserRepository import SupabaseUserRepository
+from .StudentsRepository import StudentsRepository
+from .LicenseHoldersRepository import LicenseHoldersRepository

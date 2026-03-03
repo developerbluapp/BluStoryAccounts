@@ -6,12 +6,11 @@ from blustorymicroservices.BluStoryLicenseHolders.models.exceptions.base import 
     AppException
 from fastapi import APIRouter, Depends, HTTPException, HTTPException
 
-from blustorymicroservices.BluStoryLicenseHolders.models.responses.api.LicenseHolderSessionReponse import LicenseHolderSessionResponse
+from blustorymicroservices.BluStoryLicenseHolders.models.responses.api.licenseholders.LicenseHolderSessionReponse import LicenseHolderSessionResponse
 from dependencies import get_auth_service
 from models.requests import SignupRequest
 from models.responses import CreatedStudentResponse
 from services import AuthService
-from models.responses import SignedupResponse
 AuthServiceDEP = Annotated[AuthService, Depends(get_auth_service)]
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -19,5 +18,10 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 @router.post("/signup", response_model=LicenseHolderSessionResponse ,status_code=201)
 def signup_licenseholder(body: SignupRequest, service: AuthServiceDEP):
     session_response= service.signup_license_holder(body)
-    return LicenseHolderSessionResponse(**session_response.model_dump()) 
+    return LicenseHolderSessionResponse(licenseholder=session_response.licenseholder,session=session_response.session) 
+
+@router.post("/signin", response_model=LicenseHolderSessionResponse ,status_code=201)
+def signin_licenseholder(body: SignupRequest, service: AuthServiceDEP):
+    session_response= service.signin_license_holder(body)
+    return LicenseHolderSessionResponse(licenseholder=session_response.licenseholder,session=session_response.session) 
 
