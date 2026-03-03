@@ -28,7 +28,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 app.include_router(students.router)
 app.include_router(licenseholder.router)
-app.include_router(auth.router)
+app.include_router(auth.licenseholder.router)
+app.include_router(auth.student.router)
 # main.py
 @app.exception_handler(AppException)
 async def app_exception_handler(request: Request, exc: AppException):

@@ -21,3 +21,4 @@ class StudentService:
     def update_student_by_id(self, license_holder_id: UUID, student_id: UUID, new_username: str) -> Student | None:
         return self._student_repo.update_student_by_id(license_holder_id, student_id, new_username)
     
+    

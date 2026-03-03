@@ -1,3 +1,5 @@
 from .CreateUserRequest import CreateUserRequest
 from .UpdateStudentRequest import UpdateStudentRequest
-from .SignupRequest import SignupRequest
+from .LicenseHolderSignupRequest import LicenseHolderSignupRequest
+from .StudentSigninRequest import StudentSigninRequest
+from .LicenseHolderSigninRequest import LicenseHolderSigninRequest

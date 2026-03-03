@@ -5,7 +5,7 @@ from fastapi import HTTPException
 
 from blustorymicroservices.BluStoryLicenseHolders.models.auth import UserRoles
 from blustorymicroservices.BluStoryLicenseHolders.models.dtos import \
-    AuthLicenseHolder, LicenseHolder, LicenseHolderSession,Student
+    AuthLicenseHolder, AuthStudent, LicenseHolder, LicenseHolderSession,Student, StudentSession
 from blustorymicroservices.BluStoryLicenseHolders.models.exceptions.licenseholders import UserSignupAlreadyExistsException
 from blustorymicroservices.BluStoryLicenseHolders.settings.config import \
     get_settings
@@ -79,3 +79,16 @@ class StudentsRepository:
             return None
         self._client.table("students").update({"username": new_username}).eq("license_holder_id", str(license_holder_id)).eq("id", str(student.id)).execute()
         return Student(id=student.id, username=new_username)
+    def signin_student(self, auth_student_dto: AuthStudent) -> StudentSession:
+        try:
+            session_response = self._client.auth.sign_in_with_password({
+                "email": f"{auth_student_dto.username}{get_settings().email.suffix}",
+                "password": auth_student_dto.password
+            })
+            if "error" in session_response and session_response["error"]:
+                raise HTTPException(status_code=400, detail=session_response["error"]["message"])
+            user_response = self._client.auth.get_user(session_response.session.access_token)
+            student = self._map_supabase_auth_user_to_student(SupabaseUserResponse(**user_response.user.model_dump()))
+            return StudentSession(student=student, session=session_response.session)
+        except AuthApiError as e:
+            raise HTTPException(status_code=400, detail=str(e))

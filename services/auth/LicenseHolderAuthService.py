@@ -10,7 +10,7 @@ from blustorymicroservices.BluStoryLicenseHolders.repository import \
     LicenseHoldersRepository, StudentsRepository
 
 
-class AuthService:
+class LicenseHolderAuthService:
     def __init__(self, license_holder_repo: LicenseHoldersRepository, student_repo: StudentsRepository):
         self._license_holder_repo = license_holder_repo
         self._student_repo = student_repo
@@ -18,6 +18,8 @@ class AuthService:
         alphabet = string.ascii_lowercase + string.digits  # 36 characters
         username = ''.join(secrets.choice(alphabet) for _ in range(length))
         return username
+    
+    
     def signup_license_holder(self, auth_license_holder_dto: AuthLicenseHolder) -> LicenseHolderSession:
         username = self.create_random_username()
         return self._license_holder_repo.signup_license_holder(auth_license_holder_dto,username)

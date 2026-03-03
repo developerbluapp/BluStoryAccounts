@@ -2,7 +2,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from blustorymicroservices.BluStoryLicenseHolders.dependencies.auth import get_current_user
+from blustorymicroservices.BluStoryLicenseHolders.dependencies.auth import get_current_license_holder
 from blustorymicroservices.BluStoryLicenseHolders.models.auth import AuthenticatedLicenseHolder
 from blustorymicroservices.BluStoryLicenseHolders.models.exceptions.base import \
     AppException
@@ -14,7 +14,7 @@ from dependencies import get_license_holder_service
 from services import LicenseHolderService
 
 LicenseHolderDEP = Annotated[LicenseHolderService, Depends(get_license_holder_service)]
-AuthenticatedUserDEP = Annotated[AuthenticatedLicenseHolder, Depends(get_current_user)]
+AuthenticatedUserDEP = Annotated[AuthenticatedLicenseHolder, Depends(get_current_license_holder)]
     
 router = APIRouter(prefix="/licenseholder", tags=["licenseholder"])
 
