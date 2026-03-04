@@ -2,7 +2,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, HTTPException,Request
 
 from blustorymicroservices.BluStoryLicenseHolders.dependencies.services import get_student_auth_service
 from blustorymicroservices.BluStoryLicenseHolders.models.dtos.StudentDeepLink import StudentDeepLink
@@ -28,3 +28,12 @@ def signin_student(body: StudentSigninRequest, student_service: StudentAuthServi
 async def pin_login(student_id: UUID, body: PinLoginRequest, student_service: StudentAuthServiceDEP):
     student = student_service.pin_signin_student(student_id, body.pin)
     return StudentDeepLinkResponse(student_id=student.student_id, deep_link=student.deep_link)
+
+@router.get("/callback")
+async def callback(request: Request):
+    params = dict(request.query_params)  # {"key": "value", ...}
+    print("Received query parameters:", params)
+
+    # Process the parameters as needed
+    # For example, you could return them in the response
+    return {"received_params": params}

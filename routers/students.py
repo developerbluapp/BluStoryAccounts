@@ -1,13 +1,16 @@
-from typing import Annotated
+from typing import Annotated, Any
 from uuid import UUID
 
+from fastapi import Query, Request
+
 from blustorymicroservices.BluStoryLicenseHolders.models.auth.AuthenticatedLicenseHolder import AuthenticatedLicenseHolder
-from blustorymicroservices.BluStoryLicenseHolders.models.auth.AuthenticatedStudent import AuthenticatedStudent
 from blustorymicroservices.BluStoryLicenseHolders.models.exceptions.base import AppException
 from fastapi import APIRouter, Depends
 
+from blustorymicroservices.BluStoryLicenseHolders.models.requests.GenerateDeepLinkRequest import GenerateDeepLinkRequest
 from blustorymicroservices.BluStoryLicenseHolders.models.requests.ResetPinRequest import ResetPinRequest
 from blustorymicroservices.BluStoryLicenseHolders.models.responses.api.students.ResetPinResponse import ResetPinResponse
+from blustorymicroservices.BluStoryLicenseHolders.models.responses.api.students.StudentGenerateDeepLinkResponse import StudentGenerateDeepLinkResponse
 from dependencies import get_student_service, get_current_license_holder,get_current_student
 from models.requests import CreateUserRequest, UpdateStudentRequest
 from models.responses import CreatedStudentResponse, StudentResponse,DeletedStudentResponse, PatchedStudentResponse
@@ -19,6 +22,15 @@ StudentServiceDEP = Annotated[StudentService, Depends(get_student_service)]
 AuthLicenseHolderDEP = Annotated[AuthenticatedLicenseHolder, Depends(get_current_license_holder)]
 
 router = APIRouter(prefix="/students", tags=["students"])
+
+@router.post("/reset-pin", response_model=ResetPinResponse)
+async def reset_pin(body: ResetPinRequest, student_service: StudentServiceDEP):
+    return student_service.reset_student_pin(body.student_id)
+
+@router.post("/generate-deep-link", response_model=StudentGenerateDeepLinkResponse)
+async def generate_deep_link(body: GenerateDeepLinkRequest, student_service: StudentServiceDEP, current_license_holder: AuthLicenseHolderDEP):
+    license_holder_id = current_license_holder.id
+    return student_service.generate_student_deep_link(license_holder_id, body.student_id)
 
 
 @router.post("", response_model=CreatedStudentResponse, status_code=201)
@@ -115,10 +127,4 @@ def update_student(
         username=updated_student.username,
         message=f"Student with id {updated_student.id} updated successfully"
         )
-
-
-
-@router.post("/reset-pin", response_model=ResetPinResponse)
-async def reset_pin(body: ResetPinRequest, student_service: StudentServiceDEP):
-    return student_service.reset_student_pin(body.student_id)
 

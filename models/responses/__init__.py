@@ -7,3 +7,4 @@ from .api.students.DeletedStudentResponse import DeletedStudentResponse
 from .api.students.PatchedStudentResponse import PatchedStudentResponse
 from .api.students.StudentSessionResponse import StudentSessionResponse
 from .api.students.ResetPinResponse import ResetPinResponse
+from .api.students.StudentGenerateDeepLinkResponse import StudentGenerateDeepLinkResponse

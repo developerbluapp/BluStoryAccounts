@@ -5,3 +5,4 @@ from .StudentSigninRequest import StudentSigninRequest
 from .LicenseHolderSigninRequest import LicenseHolderSigninRequest
 from .ResetPinRequest import ResetPinRequest
 from .PinLoginRequest import PinLoginRequest
+from .GenerateDeepLinkRequest import GenerateDeepLinkRequest

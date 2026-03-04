@@ -4,8 +4,8 @@ from blustorymicroservices.BluStoryLicenseHolders.dependencies.repositories impo
     get_student_repository,get_license_holder_repository
 from blustorymicroservices.BluStoryLicenseHolders.repository import \
     LicenseHoldersRepository, StudentsRepository
-from blustorymicroservices.BluStoryLicenseHolders.services import LicenseHolderService, StudentService, LicenseHolderAuthService
-from blustorymicroservices.BluStoryLicenseHolders.services.auth.StudentAuthService import StudentHolderAuthService
+from blustorymicroservices.BluStoryLicenseHolders.services import LicenseHolderService, StudentService, LicenseHolderAuthService,StudentAuthService
+
 from blustorymicroservices.BluStoryLicenseHolders.settings import (
     EmailSettings, RoleSettings, Settings, SupabaseSettings)
 from fastapi import Depends
@@ -25,5 +25,5 @@ def get_license_holder_auth_service(
     return LicenseHolderAuthService(license_holder_repo, student_repo)
 
 
-def get_student_auth_service(student_repo: StudentsRepository = Depends(get_student_repository)) -> StudentHolderAuthService:
-    return StudentHolderAuthService(student_repo)
+def get_student_auth_service(student_repo: StudentsRepository = Depends(get_student_repository)) -> StudentAuthService:
+    return StudentAuthService(student_repo)

@@ -42,7 +42,7 @@ class StudentsRepository:
     def generate_setup_link(self, username: str) -> str:
         settings = get_settings()
         fake_email = self._build_email(username)
-
+        print(f"settings.deeplink.url: {settings.deeplink.url}")
         link_response = self._client.auth.admin.generate_link({
             "type": "magiclink",
             "email": fake_email,
