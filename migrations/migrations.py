@@ -15,12 +15,15 @@ def run_migrations():
     cur = conn.cursor()
     print("Running migrations...")
     cur.execute("""
-        create table if not exists students (
-            id uuid primary key references auth.users(id) on delete cascade,
-            license_holder_id uuid not null,
-            username text not null,
-            created_at timestamptz default now()
-        );
+create table if not exists students (
+    id uuid primary key references auth.users(id) on delete cascade,
+    license_holder_id uuid not null references auth.users(id),  -- FK to license holder
+    username text not null unique,                               -- prevent duplicate usernames
+    first_name text not null,
+    pin_hash text not null,
+    created_at timestamptz default now()
+);
+    
     """)
     cur.execute("""
 -- 1. Enable the extension

@@ -19,6 +19,7 @@ packaging==26.0
 
 supabase
 psycopg2-binary
+bcrypt
 # --- Dependencies pinned by FastAPI (auto-installed) ---
 # pydantic, starlette, anyio, h11, sniffio, typing-extensions
 # You don’t need to list them unless you want strict version control

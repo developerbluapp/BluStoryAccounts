@@ -18,8 +18,7 @@ class LicenseHolderAuthService:
         alphabet = string.ascii_lowercase + string.digits  # 36 characters
         username = ''.join(secrets.choice(alphabet) for _ in range(length))
         return username
-    
-    
+
     def signup_license_holder(self, auth_license_holder_dto: AuthLicenseHolder) -> LicenseHolderSession:
         username = self.create_random_username()
         return self._license_holder_repo.signup_license_holder(auth_license_holder_dto,username)

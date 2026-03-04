@@ -3,7 +3,7 @@ import os
 from functools import lru_cache
 
 from blustorymicroservices.BluStoryLicenseHolders.settings import (
-    EmailSettings, RoleSettings, Settings, SupabaseSettings)
+    EmailSettings, RoleSettings, Settings, SupabaseSettings,PinSettings)
 
 
 @lru_cache
@@ -16,5 +16,8 @@ def get_settings() -> Settings:
         email=EmailSettings(
             suffix="@blustory.internal"
         ),
-        roles=RoleSettings()
+        roles=RoleSettings(),
+        pin=PinSettings(
+            secret=os.environ["PIN_SECRET"]
+        )
     )

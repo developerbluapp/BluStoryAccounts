@@ -3,3 +3,5 @@ from .UpdateStudentRequest import UpdateStudentRequest
 from .LicenseHolderSignupRequest import LicenseHolderSignupRequest
 from .StudentSigninRequest import StudentSigninRequest
 from .LicenseHolderSigninRequest import LicenseHolderSigninRequest
+from .ResetPinRequest import ResetPinRequest
+from .PinLoginRequest import PinLoginRequest
