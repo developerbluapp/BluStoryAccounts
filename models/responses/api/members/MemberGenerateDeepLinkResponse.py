@@ -2,5 +2,5 @@
 from pydantic import BaseModel
 
 
-class StudentGenerateDeepLinkResponse(BaseModel):
+class MemberGenerateDeepLinkResponse(BaseModel):
     deep_link: str

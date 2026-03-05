@@ -23,5 +23,4 @@ async def get_my_profile(current_user: AuthenticatedUserDEP, license_holder_serv
     license_holder = license_holder_service.get_license_holder_by_id(current_user.id) # ← ensure license holder exists, otherwise raise 404
     return LicenseHolderResponse(
         id=license_holder.id,
-        email=license_holder.email,
-        username=license_holder.user_metadata.get("username"))
+        email=license_holder.email)

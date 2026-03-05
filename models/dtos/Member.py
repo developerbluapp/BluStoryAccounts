@@ -6,6 +6,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, EmailStr
 from uuid import UUID
 
-class Student(BaseModel):
+class Member(BaseModel):
     id: UUID
     username: str
+    first_name: str

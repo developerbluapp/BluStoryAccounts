@@ -1,7 +1,8 @@
 
+
 from pydantic import BaseModel
 
 
-class AuthStudent(BaseModel):
+class MemberSigninRequest(BaseModel):
     username: str
     password: str

@@ -15,48 +15,80 @@ def run_migrations():
     cur = conn.cursor()
     print("Running migrations...")
     cur.execute("""
-create table if not exists students (
-    id uuid primary key references auth.users(id) on delete cascade,
-    license_holder_id uuid not null references auth.users(id),  -- FK to license holder
-    username text not null unique,                               -- prevent duplicate usernames
-    first_name text not null,
-    pin_hash text not null,
-    created_at timestamptz default now()
-);
-    
-    """)
-    cur.execute("""
--- 1. Enable the extension
+-- =========================================
+-- 1️⃣ Enable UUID extension
+-- =========================================
 create extension if not exists "uuid-ossp";
 
--- 2. Drop the old integer-based table if it exists 
--- (Warning: This deletes existing role data, which is fine for 4 default roles)
+
+-- =========================================
+-- 2️⃣ ROLES TABLE
+-- =========================================
+drop table if exists user_roles cascade;
 drop table if exists roles cascade;
 
--- 3. Create roles table with the correct UUID type
 create table roles (
-    id uuid primary key, 
+    id uuid primary key,
     name text not null unique
 );
 
--- 4. Insert using UUID v5 (Deterministic Hashes)
 insert into roles (id, name) values
-    (uuid_generate_v5(uuid_nil(), 'student'), 'student'),
+    (uuid_generate_v5(uuid_nil(), 'member'), 'member'),
     (uuid_generate_v5(uuid_nil(), 'parent'), 'parent'),
     (uuid_generate_v5(uuid_nil(), 'licenseholder'), 'licenseholder');
 
--- 5. Add/Alter the students table
--- If the column exists as an int, we drop it and add it as UUID
-alter table students drop column if exists role_id;
 
-alter table students
-add column role_id uuid 
-references roles(id) 
-on delete set null 
-default uuid_generate_v5(uuid_nil(), 'student');
+-- =========================================
+-- 3️⃣ LICENSE HOLDERS (1-to-1 with auth.users)
+-- =========================================
+create table if not exists license_holders (
+    id uuid primary key
+        references auth.users(id)
+        on delete cascade,
+    created_at timestamptz default now()
 
--- 6. Re-create the index
-create index if not exists idx_students_role_id on students(role_id);
+
+);
+
+
+-- =========================================
+-- 4️⃣ MEMBERS
+-- =========================================
+create table if not exists members (
+    id uuid primary key
+        references auth.users(id)
+        on delete cascade,
+
+    license_holder_id uuid not null
+        references license_holders(id)
+        on delete cascade,
+
+    username text not null unique,
+    first_name text not null,
+    created_at timestamptz default now()
+);
+
+
+-- =========================================
+-- 5️⃣ UNIFIED USER_ROLES (THE IMPORTANT PART)
+-- =========================================
+create table if not exists user_roles (
+    user_id uuid
+        references auth.users(id)
+        on delete cascade,
+
+    role_id uuid
+        references roles(id)
+        on delete cascade,
+
+    primary key (user_id, role_id)
+);
+
+create index if not exists idx_user_roles_user_id
+    on user_roles(user_id);
+
+create index if not exists idx_user_roles_role_id
+    on user_roles(role_id);
     """)
     print("Migrations completed successfully.")
     

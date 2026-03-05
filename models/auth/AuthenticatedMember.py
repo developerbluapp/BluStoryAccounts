@@ -1,9 +1,11 @@
+from typing import List
+
 from pydantic import BaseModel
 from uuid import UUID
 
 
-class AuthenticatedStudent(BaseModel):
+class AuthenticatedMember(BaseModel):
     id :UUID
     email: str
-    role: str
+    roles: List[str]
     aud: str

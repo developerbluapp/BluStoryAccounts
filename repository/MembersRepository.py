@@ -7,31 +7,25 @@ from fastapi import HTTPException
 
 from blustorymicroservices.BluStoryLicenseHolders.models.auth import UserRoles
 from blustorymicroservices.BluStoryLicenseHolders.models.dtos import \
-    AuthLicenseHolder, AuthStudent, LicenseHolder, LicenseHolderSession,Student, StudentSession
-from blustorymicroservices.BluStoryLicenseHolders.models.dtos.StudentDeepLink import StudentDeepLink
+    AuthLicenseHolder, AuthMember, LicenseHolder, LicenseHolderSession,Member, MemberSession, Roles, Roles
+from blustorymicroservices.BluStoryLicenseHolders.models.dtos.MemberDeepLink import MemberDeepLink
 from blustorymicroservices.BluStoryLicenseHolders.models.exceptions.licenseholders import UserSignupAlreadyExistsException
-from blustorymicroservices.BluStoryLicenseHolders.models.responses.api.students import ResetPinResponse
+from blustorymicroservices.BluStoryLicenseHolders.models.responses.api.members import ResetPinResponse
 from blustorymicroservices.BluStoryLicenseHolders.settings.config import \
     get_settings
 from blustorymicroservices.BluStoryLicenseHolders.settings.Settings import \
     Settings
 from blustorymicroservices.BluStoryLicenseHolders.models.responses import SupabaseUserResponse
 from supabase import Client, create_client
-from blustorymicroservices.BluStoryLicenseHolders.models.exceptions.students import UserAlreadyExistsException
+from blustorymicroservices.BluStoryLicenseHolders.models.exceptions.members import UserAlreadyExistsException
 from gotrue.errors import AuthApiError
 import secrets
 import uuid
 import bcrypt
-class StudentsRepository:
+class MembersRepository:
     def __init__(self, client: Client):
         self._client = client
      
-    def _map_supabase_auth_user_to_student(self, user: SupabaseUserResponse) -> Student:
-        return Student(
-            id=user.id,
-            username=user.user_metadata["username"],
-
-        )
     def _build_email(self, username: str) -> str:
         return f"{username}{get_settings().email.suffix}"
     
@@ -59,117 +53,124 @@ class StudentsRepository:
             plain_pin.encode(),
             hashlib.sha256
         ).hexdigest()
-    def create_student(self,username: str,first_name:str,license_holder_id: UUID) -> Student:
+    def create_member(self,username: str,first_name:str,license_holder_id: UUID) -> Member:
         
         try:
             # Auto-generate PIN instead of accepting one from request
             plain_pin = self._generate_pin(4)
-            pin_hash = bcrypt.hashpw(plain_pin.encode(), bcrypt.gensalt()).decode()
             role_response = self._client.table("roles").select("*").eq("name", UserRoles.STUDENT).maybe_single().execute()
             fake_email = self._build_email(username)
             password = self._derive_password(plain_pin)
+            roles = Roles(roles=[role_response.data["name"]])
             response = self._client.auth.admin.create_user({
                 "email": fake_email,
                 "password": password,
                 "email_confirm": True,
-                "user_metadata": {"username": username, "first_name":first_name},
-                "app_metadata": {"role": role_response.data["name"],
+                "user_metadata": {"avatar_url": "https://picsum.photos/id/237/200/300"},
+                "app_metadata": {"roles": roles.model_dump()["roles"],
                                 "license_holder_id": license_holder_id } 
             })
-            self._client.table("students").insert({
+            self._client.table("members").insert({
             "id": str(response.user.id),
             "username": username,
             "first_name":first_name,
-            "pin_hash": pin_hash,
-            "license_holder_id": str(license_holder_id),
+            "license_holder_id": str(license_holder_id)
+            }).execute()
+            self._client.table("user_roles").insert({
+                "user_id": response.user.id,
+                "role_id": role_response.data["id"]
             }).execute()
             
             if not response:
-                raise HTTPException(status_code=500, detail="Failed to insert student record")
+                raise HTTPException(status_code=500, detail="Failed to insert member record")
 
-            return self._map_supabase_auth_user_to_student(SupabaseUserResponse(**response.user.model_dump()))
+            return Member(
+                id=response.user.id,
+                username=username,
+                first_name=first_name
+            )
         except AuthApiError as e:
             if "already been registered" in str(e):
                 raise UserAlreadyExistsException(username=username)
             else:
                 raise
-    def get_students_by_license_holder(self, license_holder_id: UUID) -> list[Student]:
-        response = self._client.table("students")\
+    def get_members_by_license_holder(self, license_holder_id: UUID) -> list[Member]:
+        response = self._client.table("members")\
             .select("*")\
             .eq("license_holder_id", str(license_holder_id))\
             .execute()
-        return [Student(**s) for s in response.data]
+        return [Member(**s) for s in response.data]
 
-    def get_student_by_id(self, license_holder_id: UUID, student_id: UUID) -> Student | None:
-        response = self._client.table("students")\
+    def get_member_by_id(self, license_holder_id: UUID, member_id: UUID) -> Member | None:
+        response = self._client.table("members")\
             .select("*")\
             .eq("license_holder_id", str(license_holder_id))\
-            .eq("id", str(student_id))\
+            .eq("id", str(member_id))\
             .maybe_single()\
             .execute()
-        return Student(id=response.data["id"], username=response.data["username"]) if response.data else None
+        return Member(id=response.data["id"], username=response.data["username"], first_name=response.data["first_name"]) if response else None
 
 
-    def delete_student_by_id(self, license_holder_id: UUID, student_id: UUID) -> Student | None:
-        student = self.get_student_by_id(license_holder_id,student_id)
-        if not student:
+    def delete_member_by_id(self, license_holder_id: UUID, member_id: UUID) -> Member | None:
+        member = self.get_member_by_id(license_holder_id,member_id)
+        if not member:
             return None
-        self._client.auth.admin.delete_user(student.id)
-        self._client.table("students").delete().eq("id", str(student.id)).execute()
-        return student  # return what was deleted so caller can confirm
-    def update_student_by_id(self, license_holder_id: UUID, student_id: UUID, new_username: str) -> Student | None:
-        student = self.get_student_by_id(license_holder_id, student_id)
-        if not student:
+        self._client.auth.admin.delete_user(member.id)
+        self._client.table("members").delete().eq("id", str(member.id)).execute()
+        return member  # return what was deleted so caller can confirm
+    def update_member_by_id(self, license_holder_id: UUID, member_id: UUID, new_username: str) -> Member | None:
+        member = self.get_member_by_id(license_holder_id, member_id)
+        if not member:
             return None
-        self._client.table("students").update({"username": new_username}).eq("license_holder_id", str(license_holder_id)).eq("id", str(student.id)).execute()
-        return Student(id=student.id, username=new_username)
-    def signin_student(self, auth_student_dto: AuthStudent) -> StudentSession:
+        self._client.table("members").update({"username": new_username}).eq("license_holder_id", str(license_holder_id)).eq("id", str(member.id)).execute()
+        return Member(id=member.id, username=new_username, first_name=member.first_name)  # return updated member
+    def signin_member(self, auth_member_dto: AuthMember) -> MemberSession:
         try:
             session_response = self._client.auth.sign_in_with_password({
-                "email": f"{auth_student_dto.username}{get_settings().email.suffix}",
-                "password": auth_student_dto.password
+                "email": f"{auth_member_dto.username}{get_settings().email.suffix}",
+                "password": auth_member_dto.password
             })
             if "error" in session_response and session_response["error"]:
                 raise HTTPException(status_code=400, detail=session_response["error"]["message"])
             user_response = self._client.auth.get_user(session_response.session.access_token)
-            student = self._map_supabase_auth_user_to_student(SupabaseUserResponse(**user_response.user.model_dump()))
-            return StudentSession(student=student, session=session_response.session)
+            #member = self._map_supabase_auth_user_to_member(SupabaseUserResponse(**user_response.user.model_dump()))
+            #return MemberSession(member=member, session=session_response.session)
         except AuthApiError as e:
             raise HTTPException(status_code=400, detail=str(e))
-    def reset_student_pin(self, student_id: UUID) -> ResetPinResponse:
-        new_pin = self.generate_pin(4)
+    def reset_member_pin(self, member_id: UUID) -> ResetPinResponse:
+        new_pin = self._generate_pin(4)
         pin_hash = bcrypt.hashpw(new_pin.encode(), bcrypt.gensalt()).decode()
-        result = self._client.table("students").update({
+        result = self._client.table("members").update({
             "pin_hash": pin_hash
-        }).eq("id", str(student_id)).execute()
+        }).eq("id", str(member_id)).execute()
 
         if not result.data:
-            raise HTTPException(status_code=404, detail="Student not found")
+            raise HTTPException(status_code=404, detail="Member not found")
 
-        return ResetPinResponse(student_id=student_id, pin=new_pin)
-    def pin_signin_student(self, student_id: UUID, pin: str) -> StudentDeepLink:
-                # 1. Find student by tablet ID
-        result = self._client.table("students").select(
+        return ResetPinResponse(member_id=member_id, pin=new_pin)
+    def pin_signin_member(self, member_id: UUID, pin: str) -> MemberDeepLink:
+                # 1. Find member by tablet ID
+        result = self._client.table("members").select(
             "id, username, pin_hash"
-        ).eq("student_id", student_id).single().execute()
+        ).eq("member_id", member_id).single().execute()
 
         if not result.data:
             raise HTTPException(status_code=404, detail="Tablet not registered")
 
-        student = result.data
+        member = result.data
 
         # 2. Verify PIN
         is_valid = bcrypt.checkpw(
             pin.encode(),
-            student["pin_hash"].encode()
+            member["pin_hash"].encode()
         )
         if not is_valid:
             raise HTTPException(status_code=401, detail="Incorrect PIN")
 
-        # 3. Generate a magic link session for the student
-        email = self._build_email(student["username"])
+        # 3. Generate a magic link session for the member
+        email = self._build_email(member["username"])
         link_response = self._client.auth.admin.generate_link({
             "type": "magiclink",
             "email": email
         })
-        return StudentDeepLink(student_id=student_id, deep_link=link_response.properties.action_link)
+        return MemberDeepLink(member_id=member_id, deep_link=link_response.properties.action_link)

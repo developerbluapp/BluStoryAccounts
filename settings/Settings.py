@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class RoleSettings(BaseModel):
     license_holder: ClassVar[str] = "license_holder"
-    student: ClassVar[str] = "student"
+    member: ClassVar[str] = "member"
     parent: ClassVar[str] = "parent"
 
 class EmailSettings(BaseModel):

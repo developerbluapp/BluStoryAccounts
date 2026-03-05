@@ -6,7 +6,7 @@ from fastapi import HTTPException
 
 from blustorymicroservices.BluStoryLicenseHolders.models.auth import UserRoles
 from blustorymicroservices.BluStoryLicenseHolders.models.dtos import \
-    AuthLicenseHolder, LicenseHolder, LicenseHolderSession,Student
+    AuthLicenseHolder, LicenseHolder, LicenseHolderSession,Member, Roles
 from blustorymicroservices.BluStoryLicenseHolders.models.exceptions.licenseholders import UserSignupAlreadyExistsException
 from blustorymicroservices.BluStoryLicenseHolders.settings.config import \
     get_settings
@@ -15,7 +15,7 @@ from blustorymicroservices.BluStoryLicenseHolders.settings.Settings import \
 from blustorymicroservices.BluStoryLicenseHolders.models.responses import SupabaseUserResponse
 from supabase import Client, create_client
 from blustorymicroservices.BluStoryLicenseHolders.models.responses.api.licenseholders.LicenseHolderResponse import LicenseHolderResponse
-from blustorymicroservices.BluStoryLicenseHolders.models.exceptions.students import UserAlreadyExistsException
+from blustorymicroservices.BluStoryLicenseHolders.models.exceptions.members import UserAlreadyExistsException
 from gotrue.errors import AuthApiError
 class LicenseHoldersRepository:
     def __init__(self, client: Client):
@@ -41,13 +41,21 @@ class LicenseHoldersRepository:
         try:
                 # 1. Sign up user
             role_response = self._client.table("roles").select("*").eq("name", UserRoles.LICENSE_HOLDER).maybe_single().execute()
+            roles = Roles(roles=[role_response.data["name"]])
             response = self._client.auth.admin.create_user({
                 "email": auth_license_holder_dto.email,
                 "password": auth_license_holder_dto.password,
                 "email_confirm": True,
-                "user_metadata": {"username": username},
-                "app_metadata": {"role": role_response.data["name"]} 
+                "user_metadata": {"avatar_url": "https://picsum.photos/id/237/200/300"},
+                "app_metadata": {"roles": roles.model_dump()["roles"]} 
             })
+            self._client.table("license_holders").insert({
+                "id": str(response.user.id)
+            }).execute()
+            self._client.table("user_roles").insert({
+                "user_id": response.user.id,
+                "role_id": role_response.data["id"]
+            }).execute()
                         # 2. Sign in the user to get a session
             session_response = self._client.auth.sign_in_with_password({
                 "email": auth_license_holder_dto.email,

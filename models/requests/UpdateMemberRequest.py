@@ -1,4 +1,4 @@
 from pydantic import BaseModel, EmailStr
 
-class UpdateStudentRequest(BaseModel):
+class UpdateMemberRequest(BaseModel):
     username: str

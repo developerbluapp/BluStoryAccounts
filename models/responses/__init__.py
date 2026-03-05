@@ -1,10 +1,10 @@
-from .api.students.CreatedStudentResponse import CreatedStudentResponse
+from .api.members.CreatedMemberResponse import CreatedMemberResponse
 from .external.SupabaseUserResponse import SupabaseUserResponse
-from .api.students.StudentResponse import StudentResponse
+from .api.members.MemberResponse import MemberResponse
 from .api.licenseholders.LicenseHolderResponse import LicenseHolderResponse
 
-from .api.students.DeletedStudentResponse import DeletedStudentResponse
-from .api.students.PatchedStudentResponse import PatchedStudentResponse
-from .api.students.StudentSessionResponse import StudentSessionResponse
-from .api.students.ResetPinResponse import ResetPinResponse
-from .api.students.StudentGenerateDeepLinkResponse import StudentGenerateDeepLinkResponse
+from .api.members.DeletedMemberResponse import DeletedMemberResponse
+from .api.members.PatchedMemberResponse import PatchedMemberResponse
+from .api.members.MemberSessionResponse import MemberSessionResponse
+from .api.members.ResetPinResponse import ResetPinResponse
+from .api.members.MemberGenerateDeepLinkResponse import MemberGenerateDeepLinkResponse

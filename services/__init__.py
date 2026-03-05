@@ -1,4 +1,4 @@
-from .StudentService import StudentService
+from .MemberService import MemberService
 from .auth.LicenseHolderAuthService import LicenseHolderAuthService
-from .auth.StudentAuthService import StudentAuthService
+from .auth.MemberAuthService import MemberAuthService
 from .LicenseHolderService import LicenseHolderService

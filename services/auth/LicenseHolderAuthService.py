@@ -4,16 +4,16 @@ import string
 from pydantic import EmailStr
 from uuid import UUID
 from blustorymicroservices.BluStoryLicenseHolders.models.dtos import \
-    AuthLicenseHolder, AuthLicenseHolder, LicenseHolder, Student
+    AuthLicenseHolder, AuthLicenseHolder, LicenseHolder, Member
 from blustorymicroservices.BluStoryLicenseHolders.models.dtos import LicenseHolderSession
 from blustorymicroservices.BluStoryLicenseHolders.repository import \
-    LicenseHoldersRepository, StudentsRepository
+    LicenseHoldersRepository, MembersRepository
 
 
 class LicenseHolderAuthService:
-    def __init__(self, license_holder_repo: LicenseHoldersRepository, student_repo: StudentsRepository):
+    def __init__(self, license_holder_repo: LicenseHoldersRepository, member_repo: MembersRepository):
         self._license_holder_repo = license_holder_repo
-        self._student_repo = student_repo
+        self._member_repo = member_repo
     def create_random_username(self, length : int=20) -> str:
         alphabet = string.ascii_lowercase + string.digits  # 36 characters
         username = ''.join(secrets.choice(alphabet) for _ in range(length))

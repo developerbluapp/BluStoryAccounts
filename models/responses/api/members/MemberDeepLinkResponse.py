@@ -2,6 +2,6 @@
 from pydantic import BaseModel
 
 from uuid import UUID
-class StudentDeepLinkResponse(BaseModel):
-    student_id: UUID
+class MemberDeepLinkResponse(BaseModel):
+    member_id: UUID
     deep_link: str

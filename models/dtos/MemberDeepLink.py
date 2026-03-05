@@ -1,5 +1,5 @@
 from pydantic import BaseModel
 from uuid import UUID
-class StudentDeepLink(BaseModel):
-    student_id: UUID
+class MemberDeepLink(BaseModel):
+    member_id: UUID
     deep_link: str

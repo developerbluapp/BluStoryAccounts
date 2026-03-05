@@ -1,2 +1,2 @@
 from .base import AppException
-from .students import UserAlreadyExistsException
+from .members import UserAlreadyExistsException

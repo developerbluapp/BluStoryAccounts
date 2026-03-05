@@ -3,7 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Annotated
 from supabase import Client
 from blustorymicroservices.BluStoryLicenseHolders.dependencies.clients import get_supabase_client
-from blustorymicroservices.BluStoryLicenseHolders.models.auth import AuthenticatedLicenseHolder, AuthenticatedStudent, UserRoles
+from blustorymicroservices.BluStoryLicenseHolders.models.auth import AuthenticatedLicenseHolder, AuthenticatedMember, UserRoles
 
 security = HTTPBearer(scheme_name="Bearer", auto_error=False)
 
@@ -31,8 +31,8 @@ async def get_current_license_holder(
 
     user = auth_response.user
 
-    role = user.app_metadata.get("role")
-    if role != UserRoles.LICENSE_HOLDER:
+    roles = user.app_metadata.get("roles")
+    if UserRoles.LICENSE_HOLDER not in roles:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User does not have the required role.",
@@ -50,13 +50,13 @@ async def get_current_license_holder(
     return AuthenticatedLicenseHolder(
         id=user.id,
         email=user.email,
-        role=user.app_metadata.get("role"),
+        roles=roles,
         aud=user.aud
     )
-async def get_current_student(
+async def get_current_member(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
     supabase: Client = Depends(get_supabase_client),
-) -> AuthenticatedStudent:  # or your User model
+) -> AuthenticatedMember:  # or your User model
     """
     Dependency: extracts & verifies Supabase JWT from Authorization: Bearer <token>
     Returns user data if valid, raises 401 otherwise
@@ -77,8 +77,8 @@ async def get_current_student(
 
     user = auth_response.user
 
-    role = user.app_metadata.get("role")
-    if role != UserRoles.STUDENT:
+    roles = user.app_metadata.get("roles")
+    if UserRoles.STUDENT not in roles:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User does not have the required role.",
@@ -93,9 +93,9 @@ async def get_current_student(
     #     .execute()
     # ).data
 
-    return AuthenticatedStudent(
+    return AuthenticatedMember(
         id=user.id,
         email=user.email,
-        role=user.app_metadata.get("role"),
+        roles=roles,
         aud=user.aud
     )
