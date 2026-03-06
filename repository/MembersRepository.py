@@ -5,19 +5,19 @@ from uuid import UUID
 
 from fastapi import HTTPException
 
-from blustorymicroservices.BluStoryLicenseHolders.models.auth import UserRoles
-from blustorymicroservices.BluStoryLicenseHolders.models.dtos import \
-    AuthLicenseHolder, AuthMember, LicenseHolder, LicenseHolderSession,Member, MemberSession, Roles, Roles
-from blustorymicroservices.BluStoryLicenseHolders.models.dtos.MemberDeepLink import MemberDeepLink
-from blustorymicroservices.BluStoryLicenseHolders.models.exceptions.licenseholders import UserSignupAlreadyExistsException
-from blustorymicroservices.BluStoryLicenseHolders.models.responses.api.members import ResetPinResponse
-from blustorymicroservices.BluStoryLicenseHolders.settings.config import \
+from blustorymicroservices.BluStoryOperators.models.auth import UserRoles
+from blustorymicroservices.BluStoryOperators.models.dtos import \
+    AuthOperator, AuthMember, Operator, OperatorSession,Member, MemberSession, Roles, Roles
+from blustorymicroservices.BluStoryOperators.models.dtos.MemberDeepLink import MemberDeepLink
+from blustorymicroservices.BluStoryOperators.models.exceptions.operators import UserSignupAlreadyExistsException
+from blustorymicroservices.BluStoryOperators.models.responses.api.members import ResetPinResponse
+from blustorymicroservices.BluStoryOperators.settings.config import \
     get_settings
-from blustorymicroservices.BluStoryLicenseHolders.settings.Settings import \
+from blustorymicroservices.BluStoryOperators.settings.Settings import \
     Settings
-from blustorymicroservices.BluStoryLicenseHolders.models.responses import SupabaseUserResponse
+from blustorymicroservices.BluStoryOperators.models.responses import SupabaseUserResponse
 from supabase import Client, create_client
-from blustorymicroservices.BluStoryLicenseHolders.models.exceptions.members import UserAlreadyExistsException
+from blustorymicroservices.BluStoryOperators.models.exceptions.members import UserAlreadyExistsException
 from gotrue.errors import AuthApiError
 import secrets
 import uuid

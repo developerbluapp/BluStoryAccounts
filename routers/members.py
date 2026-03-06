@@ -3,25 +3,25 @@ from uuid import UUID
 
 from fastapi import Query, Request
 
-from blustorymicroservices.BluStoryLicenseHolders.models.auth.AuthenticatedLicenseHolder import AuthenticatedLicenseHolder
-from blustorymicroservices.BluStoryLicenseHolders.models.auth.AuthenticatedMember import AuthenticatedMember
-from blustorymicroservices.BluStoryLicenseHolders.models.dtos import AuthMember
-from blustorymicroservices.BluStoryLicenseHolders.models.exceptions.base import AppException
+from blustorymicroservices.BluStoryOperators.models.auth.AuthenticatedOperator import AuthenticatedOperator
+from blustorymicroservices.BluStoryOperators.models.auth.AuthenticatedMember import AuthenticatedMember
+from blustorymicroservices.BluStoryOperators.models.dtos import AuthMember
+from blustorymicroservices.BluStoryOperators.models.exceptions.base import AppException
 from fastapi import APIRouter, Depends
 
-from blustorymicroservices.BluStoryLicenseHolders.models.requests.GenerateDeepLinkRequest import GenerateDeepLinkRequest
-from blustorymicroservices.BluStoryLicenseHolders.models.requests.ResetPinRequest import ResetPinRequest
-from blustorymicroservices.BluStoryLicenseHolders.models.responses.api.members.ResetPinResponse import ResetPinResponse
-from blustorymicroservices.BluStoryLicenseHolders.models.responses.api.members.MemberGenerateDeepLinkResponse import MemberGenerateDeepLinkResponse
+from blustorymicroservices.BluStoryOperators.models.requests.GenerateDeepLinkRequest import GenerateDeepLinkRequest
+from blustorymicroservices.BluStoryOperators.models.requests.ResetPinRequest import ResetPinRequest
+from blustorymicroservices.BluStoryOperators.models.responses.api.members.ResetPinResponse import ResetPinResponse
+from blustorymicroservices.BluStoryOperators.models.responses.api.members.MemberGenerateDeepLinkResponse import MemberGenerateDeepLinkResponse
 from dependencies import get_member_service, get_current_license_holder,get_current_member
 from models.requests import CreateUserRequest, UpdateMemberRequest
 from models.responses import CreatedMemberResponse, MemberResponse,DeletedMemberResponse, PatchedMemberResponse
 from services import MemberService
-from blustorymicroservices.BluStoryLicenseHolders.models.responses.api.members.MemberSessionResponse import MemberSessionResponse
+from blustorymicroservices.BluStoryOperators.models.responses.api.members.MemberSessionResponse import MemberSessionResponse
 from fastapi import HTTPException
 import bcrypt
 MemberServiceDEP = Annotated[MemberService, Depends(get_member_service)]
-AuthLicenseHolderDEP = Annotated[AuthenticatedLicenseHolder, Depends(get_current_license_holder)]
+AuthOperatorDEP = Annotated[AuthenticatedOperator, Depends(get_current_license_holder)]
 AuthMemberDEP = Annotated[AuthenticatedMember, Depends(get_current_member)]
 router = APIRouter(prefix="/members", tags=["members"])
 
@@ -30,7 +30,7 @@ async def reset_pin(body: ResetPinRequest, member_service: MemberServiceDEP):
     return member_service.reset_member_pin(body.member_id)
 
 @router.post("/generate-deep-link", response_model=MemberGenerateDeepLinkResponse)
-async def generate_deep_link(body: GenerateDeepLinkRequest, member_service: MemberServiceDEP, current_license_holder: AuthLicenseHolderDEP):
+async def generate_deep_link(body: GenerateDeepLinkRequest, member_service: MemberServiceDEP, current_license_holder: AuthOperatorDEP):
     license_holder_id = current_license_holder.id
     return member_service.generate_member_deep_link(license_holder_id, body.member_id)
 
@@ -48,7 +48,7 @@ def get_my_member(
 def create_member(
     body: CreateUserRequest,
     member_service: MemberServiceDEP,
-    current_license_holder: AuthLicenseHolderDEP,
+    current_license_holder: AuthOperatorDEP,
 ):
     license_holder_id = str(current_license_holder.id)
     return member_service.register_member(
@@ -61,7 +61,7 @@ def create_member(
 @router.get("", response_model=list[MemberResponse])
 def get_members(
     member_service: MemberServiceDEP,
-    current_license_holder: AuthLicenseHolderDEP,
+    current_license_holder: AuthOperatorDEP,
 ):
     license_holder_id = current_license_holder.id
 
@@ -77,7 +77,7 @@ def get_members(
 def get_member(
     member_id: UUID,
     member_service: MemberServiceDEP,
-    current_license_holder: AuthLicenseHolderDEP,
+    current_license_holder: AuthOperatorDEP,
 ):
     license_holder_id = current_license_holder.id
 
@@ -104,7 +104,7 @@ def get_member(
 def delete_member(
     member_id: UUID,
     member_service: MemberServiceDEP,
-    current_license_holder: AuthLicenseHolderDEP,
+    current_license_holder: AuthOperatorDEP,
 ):
     license_holder_id = current_license_holder.id
 
@@ -130,7 +130,7 @@ def update_member(
     member_id: UUID,
     body: UpdateMemberRequest,
     member_service: MemberServiceDEP,
-    current_license_holder: AuthLicenseHolderDEP,
+    current_license_holder: AuthOperatorDEP,
 ):
     license_holder_id = current_license_holder.id
 

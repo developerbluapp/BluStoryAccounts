@@ -1,2 +1,2 @@
 from . import member
-from . import licenseholder
+from . import operator

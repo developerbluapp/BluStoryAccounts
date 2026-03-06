@@ -1,5 +1,5 @@
 
-from blustorymicroservices.BluStoryLicenseHolders.models.exceptions.base import AppException
+from blustorymicroservices.BluStoryOperators.models.exceptions.base import AppException
 
 class UserSignupAlreadyExistsException(AppException):
     def __init__(self, email: str):

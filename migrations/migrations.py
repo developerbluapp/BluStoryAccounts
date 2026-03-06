@@ -35,7 +35,7 @@ create table roles (
 insert into roles (id, name) values
     (uuid_generate_v5(uuid_nil(), 'member'), 'member'),
     (uuid_generate_v5(uuid_nil(), 'parent'), 'parent'),
-    (uuid_generate_v5(uuid_nil(), 'licenseholder'), 'licenseholder');
+    (uuid_generate_v5(uuid_nil(), 'operator'), 'operator');
 
 
 -- =========================================

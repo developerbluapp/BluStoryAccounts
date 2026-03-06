@@ -2,15 +2,15 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Annotated
 from supabase import Client
-from blustorymicroservices.BluStoryLicenseHolders.dependencies.clients import get_supabase_client
-from blustorymicroservices.BluStoryLicenseHolders.models.auth import AuthenticatedLicenseHolder, AuthenticatedMember, UserRoles
+from blustorymicroservices.BluStoryOperators.dependencies.clients import get_supabase_client
+from blustorymicroservices.BluStoryOperators.models.auth import AuthenticatedOperator, AuthenticatedMember, UserRoles
 
 security = HTTPBearer(scheme_name="Bearer", auto_error=False)
 
 async def get_current_license_holder(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
     supabase: Client = Depends(get_supabase_client),
-) -> AuthenticatedLicenseHolder:  # or your User model
+) -> AuthenticatedOperator:  # or your User model
     """
     Dependency: extracts & verifies Supabase JWT from Authorization: Bearer <token>
     Returns user data if valid, raises 401 otherwise
@@ -47,7 +47,7 @@ async def get_current_license_holder(
     #     .execute()
     # ).data
 
-    return AuthenticatedLicenseHolder(
+    return AuthenticatedOperator(
         id=user.id,
         email=user.email,
         roles=roles,

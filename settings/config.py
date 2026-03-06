@@ -2,7 +2,7 @@
 import os
 from functools import lru_cache
 
-from blustorymicroservices.BluStoryLicenseHolders.settings import (
+from blustorymicroservices.BluStoryOperators.settings import (
     EmailSettings, RoleSettings, Settings, SupabaseSettings,PinSettings)
 
 

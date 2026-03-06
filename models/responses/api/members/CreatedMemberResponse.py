@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from blustorymicroservices.BluStoryLicenseHolders.models.dtos.Member import Member
+from blustorymicroservices.BluStoryOperators.models.dtos.Member import Member
 
 
 class CreatedMemberResponse(BaseModel):

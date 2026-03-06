@@ -5,6 +5,6 @@ from pydantic import BaseModel
 
 
 class UserRoles(BaseModel):
-    LICENSE_HOLDER: ClassVar[str] = "licenseholder"
+    LICENSE_HOLDER: ClassVar[str] = "operator"
     STUDENT: ClassVar[str] = "member"
     PARENT: ClassVar[str] = "parent"

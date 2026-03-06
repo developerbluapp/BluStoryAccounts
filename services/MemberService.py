@@ -1,17 +1,17 @@
 from uuid import UUID
 
-from blustorymicroservices.BluStoryLicenseHolders.models.dtos import \
-    LicenseHolder, Member
-from blustorymicroservices.BluStoryLicenseHolders.models.exceptions.members import MemberNotFoundException
-from blustorymicroservices.BluStoryLicenseHolders.models.responses.api.members.CreatedMemberResponse import CreatedMemberResponse
-from blustorymicroservices.BluStoryLicenseHolders.models.responses.api.members.MemberGenerateDeepLinkResponse import MemberGenerateDeepLinkResponse
-from blustorymicroservices.BluStoryLicenseHolders.repository import \
-    LicenseHoldersRepository, MembersRepository
+from blustorymicroservices.BluStoryOperators.models.dtos import \
+    Operator, Member
+from blustorymicroservices.BluStoryOperators.models.exceptions.members import MemberNotFoundException
+from blustorymicroservices.BluStoryOperators.models.responses.api.members.CreatedMemberResponse import CreatedMemberResponse
+from blustorymicroservices.BluStoryOperators.models.responses.api.members.MemberGenerateDeepLinkResponse import MemberGenerateDeepLinkResponse
+from blustorymicroservices.BluStoryOperators.repository import \
+    OperatorsRepository, MembersRepository
 
-from blustorymicroservices.BluStoryLicenseHolders.settings.config import get_settings
+from blustorymicroservices.BluStoryOperators.settings.config import get_settings
 
 class MemberService:
-    def __init__(self, member_repo: MembersRepository, license_holder_repo: LicenseHoldersRepository):
+    def __init__(self, member_repo: MembersRepository, license_holder_repo: OperatorsRepository):
         self._member_repo = member_repo
         self._license_holder_repo = license_holder_repo
     def register_member(self,username: str,first_name:str,license_holder_id: UUID) -> CreatedMemberResponse:

@@ -1,8 +1,7 @@
 
-
 from pydantic import BaseModel
 
 
-class LicenseHolderSignupRequest(BaseModel):
+class AuthOperator(BaseModel):
     email: str
     password: str

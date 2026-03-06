@@ -1,4 +1,4 @@
 from .MemberService import MemberService
-from .auth.LicenseHolderAuthService import LicenseHolderAuthService
+from .auth.OperatorAuthService import OperatorAuthService
 from .auth.MemberAuthService import MemberAuthService
-from .LicenseHolderService import LicenseHolderService
+from .OperatorService import OperatorService

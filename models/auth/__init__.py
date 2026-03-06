@@ -1,3 +1,3 @@
-from .AuthenticatedLicenseHolder import AuthenticatedLicenseHolder
+from .AuthenticatedOperator import AuthenticatedOperator
 from .UserRoles import UserRoles
 from .AuthenticatedMember import AuthenticatedMember

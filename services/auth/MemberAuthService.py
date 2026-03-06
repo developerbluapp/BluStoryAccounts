@@ -3,11 +3,11 @@ import secrets
 import string
 from pydantic import EmailStr
 from uuid import UUID
-from blustorymicroservices.BluStoryLicenseHolders.models.dtos import \
+from blustorymicroservices.BluStoryOperators.models.dtos import \
     AuthMember, MemberSession
-from blustorymicroservices.BluStoryLicenseHolders.models.dtos.MemberDeepLink import MemberDeepLink
-from blustorymicroservices.BluStoryLicenseHolders.repository import \
-    LicenseHoldersRepository, MembersRepository
+from blustorymicroservices.BluStoryOperators.models.dtos.MemberDeepLink import MemberDeepLink
+from blustorymicroservices.BluStoryOperators.repository import \
+    OperatorsRepository, MembersRepository
 
 class MemberAuthService:
     def __init__(self,member_repo: MembersRepository):

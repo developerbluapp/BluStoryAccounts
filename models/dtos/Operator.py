@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr
 from uuid import UUID
 
 
-class LicenseHolder(BaseModel):
+class Operator(BaseModel):
     id: UUID
     email: EmailStr | None = None
     phone: str | None = None

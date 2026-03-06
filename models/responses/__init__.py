@@ -1,7 +1,7 @@
 from .api.members.CreatedMemberResponse import CreatedMemberResponse
 from .external.SupabaseUserResponse import SupabaseUserResponse
 from .api.members.MemberResponse import MemberResponse
-from .api.licenseholders.LicenseHolderResponse import LicenseHolderResponse
+from .api.operators.OperatorResponse import OperatorResponse
 
 from .api.members.DeletedMemberResponse import DeletedMemberResponse
 from .api.members.PatchedMemberResponse import PatchedMemberResponse

@@ -3,6 +3,6 @@
 from pydantic import BaseModel
 
 
-class LicenseHolderSigninRequest(BaseModel):
+class OperatorSigninRequest(BaseModel):
     email: str
     password: str

@@ -1,7 +1,8 @@
 
+
 from pydantic import BaseModel
 
 
-class AuthLicenseHolder(BaseModel):
+class OperatorSignupRequest(BaseModel):
     email: str
     password: str
