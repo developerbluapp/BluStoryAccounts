@@ -95,6 +95,7 @@ async def get_current_member(
 
     return AuthenticatedMember(
         id=user.id,
+        license_holder_id=user.app_metadata.get("license_holder_id"),
         email=user.email,
         roles=roles,
         aud=user.aud

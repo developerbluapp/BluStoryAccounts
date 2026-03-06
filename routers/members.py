@@ -4,6 +4,8 @@ from uuid import UUID
 from fastapi import Query, Request
 
 from blustorymicroservices.BluStoryLicenseHolders.models.auth.AuthenticatedLicenseHolder import AuthenticatedLicenseHolder
+from blustorymicroservices.BluStoryLicenseHolders.models.auth.AuthenticatedMember import AuthenticatedMember
+from blustorymicroservices.BluStoryLicenseHolders.models.dtos import AuthMember
 from blustorymicroservices.BluStoryLicenseHolders.models.exceptions.base import AppException
 from fastapi import APIRouter, Depends
 
@@ -20,7 +22,7 @@ from fastapi import HTTPException
 import bcrypt
 MemberServiceDEP = Annotated[MemberService, Depends(get_member_service)]
 AuthLicenseHolderDEP = Annotated[AuthenticatedLicenseHolder, Depends(get_current_license_holder)]
-
+AuthMemberDEP = Annotated[AuthenticatedMember, Depends(get_current_member)]
 router = APIRouter(prefix="/members", tags=["members"])
 
 @router.post("/reset-pin", response_model=ResetPinResponse)
@@ -31,6 +33,15 @@ async def reset_pin(body: ResetPinRequest, member_service: MemberServiceDEP):
 async def generate_deep_link(body: GenerateDeepLinkRequest, member_service: MemberServiceDEP, current_license_holder: AuthLicenseHolderDEP):
     license_holder_id = current_license_holder.id
     return member_service.generate_member_deep_link(license_holder_id, body.member_id)
+
+@router.get("/profile", response_model=MemberResponse)
+def get_my_member(
+    member_service: MemberServiceDEP,
+    current_member: AuthMemberDEP,
+):
+    return member_service.get_member_by_id(
+        current_member.license_holder_id,
+        current_member.id)
 
 
 @router.post("", response_model=CreatedMemberResponse, status_code=201)
@@ -86,6 +97,7 @@ def get_member(
         username=member.username,
         first_name=member.first_name
     )
+
 
 
 @router.delete("/{member_id}")
