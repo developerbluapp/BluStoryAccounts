@@ -13,7 +13,7 @@ from blustorymicroservices.BluStoryOperators.models.requests.GenerateDeepLinkReq
 from blustorymicroservices.BluStoryOperators.models.requests.ResetPinRequest import ResetPinRequest
 from blustorymicroservices.BluStoryOperators.models.responses.api.members.ResetPinResponse import ResetPinResponse
 from blustorymicroservices.BluStoryOperators.models.responses.api.members.MemberGenerateDeepLinkResponse import MemberGenerateDeepLinkResponse
-from dependencies import get_member_service, get_current_license_holder,get_current_member
+from dependencies import get_member_service, get_current_operator,get_current_member
 from models.requests import CreateUserRequest, UpdateMemberRequest
 from models.responses import CreatedMemberResponse, MemberResponse,DeletedMemberResponse, PatchedMemberResponse
 from services import MemberService
@@ -21,7 +21,7 @@ from blustorymicroservices.BluStoryOperators.models.responses.api.members.Member
 from fastapi import HTTPException
 import bcrypt
 MemberServiceDEP = Annotated[MemberService, Depends(get_member_service)]
-AuthOperatorDEP = Annotated[AuthenticatedOperator, Depends(get_current_license_holder)]
+AuthOperatorDEP = Annotated[AuthenticatedOperator, Depends(get_current_operator)]
 AuthMemberDEP = Annotated[AuthenticatedMember, Depends(get_current_member)]
 router = APIRouter(prefix="/members", tags=["members"])
 
@@ -30,9 +30,9 @@ async def reset_pin(body: ResetPinRequest, member_service: MemberServiceDEP):
     return member_service.reset_member_pin(body.member_id)
 
 @router.post("/generate-deep-link", response_model=MemberGenerateDeepLinkResponse)
-async def generate_deep_link(body: GenerateDeepLinkRequest, member_service: MemberServiceDEP, current_license_holder: AuthOperatorDEP):
-    license_holder_id = current_license_holder.id
-    return member_service.generate_member_deep_link(license_holder_id, body.member_id)
+async def generate_deep_link(body: GenerateDeepLinkRequest, member_service: MemberServiceDEP, current_operator: AuthOperatorDEP):
+    operator_id = current_operator.id
+    return member_service.generate_member_deep_link(operator_id, body.member_id)
 
 @router.get("/profile", response_model=MemberResponse)
 def get_my_member(
@@ -40,7 +40,7 @@ def get_my_member(
     current_member: AuthMemberDEP,
 ):
     return member_service.get_member_by_id(
-        current_member.license_holder_id,
+        current_member.operator_id,
         current_member.id)
 
 
@@ -48,24 +48,24 @@ def get_my_member(
 def create_member(
     body: CreateUserRequest,
     member_service: MemberServiceDEP,
-    current_license_holder: AuthOperatorDEP,
+    current_operator: AuthOperatorDEP,
 ):
-    license_holder_id = str(current_license_holder.id)
+    operator_id = str(current_operator.id)
     return member_service.register_member(
         body.username,
         body.first_name,
-        license_holder_id=license_holder_id,
+        operator_id=operator_id,
     )
 
 
 @router.get("", response_model=list[MemberResponse])
 def get_members(
     member_service: MemberServiceDEP,
-    current_license_holder: AuthOperatorDEP,
+    current_operator: AuthOperatorDEP,
 ):
-    license_holder_id = current_license_holder.id
+    operator_id = current_operator.id
 
-    members = member_service.get_members_by_license_holder(license_holder_id)
+    members = member_service.get_members_by_operator(operator_id)
 
     return [
         MemberResponse(id=s.id, username=s.username,first_name=s.first_name)
@@ -77,12 +77,12 @@ def get_members(
 def get_member(
     member_id: UUID,
     member_service: MemberServiceDEP,
-    current_license_holder: AuthOperatorDEP,
+    current_operator: AuthOperatorDEP,
 ):
-    license_holder_id = current_license_holder.id
+    operator_id = current_operator.id
 
     member = member_service.get_member_by_id(
-        license_holder_id,
+        operator_id,
         member_id,
     )
 
@@ -104,12 +104,12 @@ def get_member(
 def delete_member(
     member_id: UUID,
     member_service: MemberServiceDEP,
-    current_license_holder: AuthOperatorDEP,
+    current_operator: AuthOperatorDEP,
 ):
-    license_holder_id = current_license_holder.id
+    operator_id = current_operator.id
 
     deleted_member = member_service.delete_member_by_id(
-        license_holder_id,
+        operator_id,
         member_id,
     )
     if not deleted_member:
@@ -130,12 +130,12 @@ def update_member(
     member_id: UUID,
     body: UpdateMemberRequest,
     member_service: MemberServiceDEP,
-    current_license_holder: AuthOperatorDEP,
+    current_operator: AuthOperatorDEP,
 ):
-    license_holder_id = current_license_holder.id
+    operator_id = current_operator.id
 
     updated_member = member_service.update_member_by_id(
-        license_holder_id,
+        operator_id,
         member_id,
         body.username,
     )

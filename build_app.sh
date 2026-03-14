@@ -9,7 +9,7 @@ if [[ -z "$MODE" ]]; then
   exit 1
 fi
 artifact_repo="palondomus"
-image="blustorylicenseholders"
+image="blustoryapi"
 
 newv=$(head -c 32 /dev/urandom | sha256sum | cut -d' ' -f1)
 export FULL_IMAGE="$artifact_repo/$image:$newv"

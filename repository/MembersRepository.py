@@ -53,7 +53,7 @@ class MembersRepository:
             plain_pin.encode(),
             hashlib.sha256
         ).hexdigest()
-    def create_member(self,username: str,first_name:str,license_holder_id: UUID) -> Member:
+    def create_member(self,username: str,first_name:str,operator_id: UUID) -> Member:
         
         try:
             # Auto-generate PIN instead of accepting one from request
@@ -68,13 +68,13 @@ class MembersRepository:
                 "email_confirm": True,
                 "user_metadata": {"avatar_url": "https://picsum.photos/id/237/200/300"},
                 "app_metadata": {"roles": roles.model_dump()["roles"],
-                                "license_holder_id": license_holder_id } 
+                                "operator_id": operator_id } 
             })
             self._client.table("members").insert({
             "id": str(response.user.id),
             "username": username,
             "first_name":first_name,
-            "license_holder_id": str(license_holder_id)
+            "operator_id": str(operator_id)
             }).execute()
             self._client.table("user_roles").insert({
                 "user_id": response.user.id,
@@ -94,35 +94,35 @@ class MembersRepository:
                 raise UserAlreadyExistsException(username=username)
             else:
                 raise
-    def get_members_by_license_holder(self, license_holder_id: UUID) -> list[Member]:
+    def get_members_by_operator(self, operator_id: UUID) -> list[Member]:
         response = self._client.table("members")\
             .select("*")\
-            .eq("license_holder_id", str(license_holder_id))\
+            .eq("operator_id", str(operator_id))\
             .execute()
         return [Member(**s) for s in response.data]
 
-    def get_member_by_id(self, license_holder_id: UUID, member_id: UUID) -> Member | None:
+    def get_member_by_id(self, operator_id: UUID, member_id: UUID) -> Member | None:
         response = self._client.table("members")\
             .select("*")\
-            .eq("license_holder_id", str(license_holder_id))\
+            .eq("operator_id", str(operator_id))\
             .eq("id", str(member_id))\
             .maybe_single()\
             .execute()
         return Member(id=response.data["id"], username=response.data["username"], first_name=response.data["first_name"]) if response else None
 
 
-    def delete_member_by_id(self, license_holder_id: UUID, member_id: UUID) -> Member | None:
-        member = self.get_member_by_id(license_holder_id,member_id)
+    def delete_member_by_id(self, operator_id: UUID, member_id: UUID) -> Member | None:
+        member = self.get_member_by_id(operator_id,member_id)
         if not member:
             return None
         self._client.auth.admin.delete_user(member.id)
         self._client.table("members").delete().eq("id", str(member.id)).execute()
         return member  # return what was deleted so caller can confirm
-    def update_member_by_id(self, license_holder_id: UUID, member_id: UUID, new_username: str) -> Member | None:
-        member = self.get_member_by_id(license_holder_id, member_id)
+    def update_member_by_id(self, operator_id: UUID, member_id: UUID, new_username: str) -> Member | None:
+        member = self.get_member_by_id(operator_id, member_id)
         if not member:
             return None
-        self._client.table("members").update({"username": new_username}).eq("license_holder_id", str(license_holder_id)).eq("id", str(member.id)).execute()
+        self._client.table("members").update({"username": new_username}).eq("operator_id", str(operator_id)).eq("id", str(member.id)).execute()
         return Member(id=member.id, username=new_username, first_name=member.first_name)  # return updated member
     def signin_member(self, auth_member_dto: AuthMember) -> MemberSession:
         try:

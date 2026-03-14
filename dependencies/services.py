@@ -1,7 +1,7 @@
 import os
 
 from blustorymicroservices.BluStoryOperators.dependencies.repositories import \
-    get_member_repository,get_license_holder_repository
+    get_member_repository,get_operator_repository
 from blustorymicroservices.BluStoryOperators.repository import \
     OperatorsRepository, MembersRepository
 from blustorymicroservices.BluStoryOperators.services import OperatorService, MemberService, OperatorAuthService,MemberAuthService
@@ -12,17 +12,17 @@ from fastapi import Depends
 from supabase import Client
 
 
-def get_member_service(member_repo: MembersRepository = Depends(get_member_repository ), license_holder_repo: OperatorsRepository = Depends(get_license_holder_repository)) -> MemberService:
-    return MemberService(member_repo, license_holder_repo)
+def get_member_service(member_repo: MembersRepository = Depends(get_member_repository ), operator_repo: OperatorsRepository = Depends(get_operator_repository)) -> MemberService:
+    return MemberService(member_repo, operator_repo)
 
-def get_license_holder_service(license_holder_repo: OperatorsRepository = Depends(get_license_holder_repository),member_repo: MembersRepository = Depends(get_member_repository)) -> OperatorService:
-    return OperatorService(license_holder_repo, member_repo)
+def get_operator_service(operator_repo: OperatorsRepository = Depends(get_operator_repository),member_repo: MembersRepository = Depends(get_member_repository)) -> OperatorService:
+    return OperatorService(operator_repo, member_repo)
 
-def get_license_holder_auth_service(
-    license_holder_repo: OperatorsRepository = Depends(get_license_holder_repository),
+def get_operator_auth_service(
+    operator_repo: OperatorsRepository = Depends(get_operator_repository),
     member_repo: MembersRepository = Depends(get_member_repository),
 ) -> OperatorAuthService:
-    return OperatorAuthService(license_holder_repo, member_repo)
+    return OperatorAuthService(operator_repo, member_repo)
 
 
 def get_member_auth_service(member_repo: MembersRepository = Depends(get_member_repository)) -> MemberAuthService:

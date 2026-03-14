@@ -11,16 +11,16 @@ from blustorymicroservices.BluStoryOperators.repository import \
 
 
 class OperatorAuthService:
-    def __init__(self, license_holder_repo: OperatorsRepository, member_repo: MembersRepository):
-        self._license_holder_repo = license_holder_repo
+    def __init__(self, operator_repo: OperatorsRepository, member_repo: MembersRepository):
+        self._operator_repo = operator_repo
         self._member_repo = member_repo
     def create_random_username(self, length : int=20) -> str:
         alphabet = string.ascii_lowercase + string.digits  # 36 characters
         username = ''.join(secrets.choice(alphabet) for _ in range(length))
         return username
 
-    def signup_license_holder(self, auth_license_holder_dto: AuthOperator) -> OperatorSession:
+    def signup_operator(self, auth_operator_dto: AuthOperator) -> OperatorSession:
         username = self.create_random_username()
-        return self._license_holder_repo.signup_license_holder(auth_license_holder_dto,username)
-    def signin_license_holder(self, auth_license_holder_dto: AuthOperator) -> OperatorSession:
-        return self._license_holder_repo.signin_license_holder(auth_license_holder_dto)
+        return self._operator_repo.signup_operator(auth_operator_dto,username)
+    def signin_operator(self, auth_operator_dto: AuthOperator) -> OperatorSession:
+        return self._operator_repo.signin_operator(auth_operator_dto)

@@ -7,7 +7,7 @@ from blustorymicroservices.BluStoryOperators.models.auth import AuthenticatedOpe
 
 security = HTTPBearer(scheme_name="Bearer", auto_error=False)
 
-async def get_current_license_holder(
+async def get_current_operator(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
     supabase: Client = Depends(get_supabase_client),
 ) -> AuthenticatedOperator:  # or your User model
@@ -95,7 +95,7 @@ async def get_current_member(
 
     return AuthenticatedMember(
         id=user.id,
-        license_holder_id=user.app_metadata.get("license_holder_id"),
+        operator_id=user.app_metadata.get("operator_id"),
         email=user.email,
         roles=roles,
         aud=user.aud

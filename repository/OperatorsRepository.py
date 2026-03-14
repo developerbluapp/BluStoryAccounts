@@ -21,7 +21,7 @@ class OperatorsRepository:
     def __init__(self, client: Client):
         self._client = client
 
-    def _map_supabase_auth_user_to_license_holder(self, user: SupabaseUserResponse) -> Operator:
+    def _map_supabase_auth_user_to_operator(self, user: SupabaseUserResponse) -> Operator:
         return Operator(
             id=user.id,
             email=user.email,
@@ -37,19 +37,19 @@ class OperatorsRepository:
             is_anonymous=user.is_anonymous
         )
 
-    def signup_license_holder(self, auth_license_holder_dto: AuthOperator, username: str) -> OperatorSession:
+    def signup_operator(self, auth_operator_dto: AuthOperator, username: str) -> OperatorSession:
         try:
                 # 1. Sign up user
             role_response = self._client.table("roles").select("*").eq("name", UserRoles.LICENSE_HOLDER).maybe_single().execute()
             roles = Roles(roles=[role_response.data["name"]])
             response = self._client.auth.admin.create_user({
-                "email": auth_license_holder_dto.email,
-                "password": auth_license_holder_dto.password,
+                "email": auth_operator_dto.email,
+                "password": auth_operator_dto.password,
                 "email_confirm": True,
                 "user_metadata": {"avatar_url": "https://picsum.photos/id/237/200/300"},
                 "app_metadata": {"roles": roles.model_dump()["roles"]} 
             })
-            self._client.table("license_holders").insert({
+            self._client.table("operators").insert({
                 "id": str(response.user.id)
             }).execute()
             self._client.table("user_roles").insert({
@@ -58,39 +58,39 @@ class OperatorsRepository:
             }).execute()
                         # 2. Sign in the user to get a session
             session_response = self._client.auth.sign_in_with_password({
-                "email": auth_license_holder_dto.email,
-                "password": auth_license_holder_dto.password
+                "email": auth_operator_dto.email,
+                "password": auth_operator_dto.password
             })
             if "error" in session_response and session_response["error"]:
                 raise HTTPException(status_code=400, detail=session_response["error"]["message"])
-            license_holder = self._map_supabase_auth_user_to_license_holder(SupabaseUserResponse(**response.user.model_dump()))
+            operator = self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**response.user.model_dump()))
             return OperatorSession(
-                operator=license_holder,
+                operator=operator,
                 session=session_response.session
             )
         except AuthApiError as e:
             if "already been registered" in str(e):
-                raise UserSignupAlreadyExistsException(email=auth_license_holder_dto.email)
+                raise UserSignupAlreadyExistsException(email=auth_operator_dto.email)
             else:
                 raise
-    def signin_license_holder(self, auth_license_holder_dto: AuthOperator) -> OperatorSession:
+    def signin_operator(self, auth_operator_dto: AuthOperator) -> OperatorSession:
         try:
             session_response = self._client.auth.sign_in_with_password({
-                "email": auth_license_holder_dto.email,
-                "password": auth_license_holder_dto.password
+                "email": auth_operator_dto.email,
+                "password": auth_operator_dto.password
             })
             if "error" in session_response and session_response["error"]:
                 raise HTTPException(status_code=400, detail=session_response["error"]["message"])
             user_response = self._client.auth.get_user(session_response.session.access_token)
-            license_holder = self._map_supabase_auth_user_to_license_holder(SupabaseUserResponse(**user_response.user.model_dump()))
+            operator = self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**user_response.user.model_dump()))
             return OperatorSession(
-                operator=license_holder,
+                operator=operator,
                 session=session_response.session
             )
         except AuthApiError as e:
             raise HTTPException(status_code=400, detail=str(e))
-    def get_license_holder_by_id(self, license_holder_id: UUID) -> Operator | None:
-        response = self._client.auth.admin.get_user_by_id(str(license_holder_id))
+    def get_operator_by_id(self, operator_id: UUID) -> Operator | None:
+        response = self._client.auth.admin.get_user_by_id(str(operator_id))
         if not response.user:
             return None
-        return self._map_supabase_auth_user_to_license_holder(SupabaseUserResponse(**response.user.model_dump()))
+        return self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**response.user.model_dump()))

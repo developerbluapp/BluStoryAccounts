@@ -10,5 +10,5 @@ from supabase import Client
 def get_member_repository(client: Client = Depends(get_supabase_client)) -> MembersRepository:
     return MembersRepository(client)
 
-def get_license_holder_repository(client: Client = Depends(get_supabase_client)) -> OperatorsRepository:
+def get_operator_repository(client: Client = Depends(get_supabase_client)) -> OperatorsRepository:
     return OperatorsRepository(client)

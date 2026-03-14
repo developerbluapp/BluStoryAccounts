@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class RoleSettings(BaseModel):
-    license_holder: ClassVar[str] = "license_holder"
+    operator: ClassVar[str] = "operator"
     member: ClassVar[str] = "member"
     parent: ClassVar[str] = "parent"
 
