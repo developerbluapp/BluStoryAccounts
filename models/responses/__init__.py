@@ -11,3 +11,4 @@ from .api.members.MemberGenerateDeepLinkResponse import MemberGenerateDeepLinkRe
 from .api.organisations.OrganisationResponse import OrganisationResponse
 from .api.operators.OperatorSessionReponse import OperatorSessionResponse
 from .api.organisations.OrganisationSessionResponse import OrganisationSessionResponse
+from .api.organisations.OrganisationNameResponse import OrganisationNameResponse

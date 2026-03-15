@@ -20,7 +20,7 @@ class OperatorAuthService:
         return username
 
     def signup_operator(self, auth_operator_dto: AuthOperator) -> OperatorSession:
-        username = self.create_random_username()
-        return self._operator_repo.signup_operator(auth_operator_dto,username)
+        #username = self.create_random_username()
+        return self._operator_repo.signup_operator(auth_operator_dto)
     def signin_operator(self, auth_operator_dto: AuthOperator) -> OperatorSession:
         return self._operator_repo.signin_operator(auth_operator_dto)

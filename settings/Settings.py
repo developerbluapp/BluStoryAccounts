@@ -1,3 +1,4 @@
+import operator
 from typing import ClassVar
 
 from pydantic import BaseModel
@@ -12,6 +13,9 @@ class EmailSettings(BaseModel):
     suffix: ClassVar[str] = "@blustory.internal"
     max_length: ClassVar[int] = 254
 
+class OperatorSettings(BaseModel):
+    prefix: ClassVar[str] = "BluStoryOps_"
+
 class SupabaseSettings(BaseModel):
     url: str
     service_role_key: str
@@ -21,14 +25,16 @@ class DeepLinkSettings(BaseModel):
     callback: ClassVar[str] = "://auth/callback"
     url: ClassVar[str] = scheme + callback
 
-class PinSettings(BaseModel):
-    secret: str
+class InternalClientsSettings(BaseModel):
+    organisation_service_url: ClassVar[str] = "http://127.0.0.1:8080"
 
 class Settings(BaseModel):
     supabase: SupabaseSettings
     email: ClassVar[type[EmailSettings]] = EmailSettings  
     roles: ClassVar[type[RoleSettings]] = RoleSettings    
     deeplink: ClassVar[type[DeepLinkSettings]] = DeepLinkSettings 
-    pin: PinSettings
+    operator: ClassVar[type[OperatorSettings]] = OperatorSettings   
+    internal_clients: ClassVar[type[InternalClientsSettings]] = InternalClientsSettings
+
 
     model_config = {"env_file": ".env", "extra": "allow"}

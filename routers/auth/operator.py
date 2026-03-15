@@ -15,10 +15,10 @@ OperatorAuthServiceDEP = Annotated[OperatorAuthService, Depends(get_operator_aut
 
 router = APIRouter(prefix="/auth/operator", tags=["auth-operator"])
 
-@router.post("/signup", response_model=OperatorSessionResponse ,status_code=201)
-def signup_operator(body: OperatorSignupRequest, operator_service: OperatorAuthServiceDEP):
-    session_response= operator_service.signup_operator(body)
-    return OperatorSessionResponse(operator=OperatorResponse(id=session_response.operator.id,email=session_response.operator.email),session=session_response.session) 
+#@router.post("/signup", response_model=OperatorSessionResponse ,status_code=201)
+#def signup_operator(body: OperatorSignupRequest, operator_service: OperatorAuthServiceDEP):
+#    session_response= operator_service.signup_operator(body)
+#    return OperatorSessionResponse(operator=OperatorResponse(id=session_response.operator.id,email=session_response.operator.email),session=session_response.session) 
 
 @router.post("/signin", response_model=OperatorSessionResponse ,status_code=201)
 def signin_operator(body: OperatorSigninRequest, operator_service: OperatorAuthServiceDEP):

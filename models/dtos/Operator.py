@@ -11,6 +11,7 @@ class Operator(BaseModel):
     id: UUID
     email: EmailStr | None = None
     phone: str | None = None
+    username : str | None = None
     email_confirmed_at: datetime | None = None
     phone_confirmed_at: datetime | None = None
     confirmed_at: datetime | None = None

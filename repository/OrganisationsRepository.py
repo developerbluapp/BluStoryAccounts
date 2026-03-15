@@ -44,7 +44,11 @@ class OrganisationsRepository:
             raise HTTPException(status_code=500, detail=f"Role '{role_name}' not found in database")
         else:
             return role_response.data["id"]
-
+    def get_organisation_name_by_id(self, organisation_id: UUID) -> str | None:
+        org_record = self._client.table("organisations").select("name").eq("id", str(organisation_id)).maybe_single().execute()
+        if not org_record:
+            return HTTPException(status_code=404, detail="Organisation not found")
+        return org_record.data["name"]
     def signup_organisation(self, auth_organisation_dto: AuthOrganisation) -> OrganisationSession:
         try:
 
@@ -67,6 +71,7 @@ class OrganisationsRepository:
                 .execute()
 
             roles = Roles(roles=[role_response.data["name"]])
+            organisation_id = str(uuid4())
 
             # 2️⃣ Create the user (organisation admin)
             response = self._client.auth.admin.create_user({
@@ -74,10 +79,10 @@ class OrganisationsRepository:
                 "password": auth_organisation_dto.password,
                 "email_confirm": True,
                 "user_metadata": {"avatar_url": "https://picsum.photos/id/237/200/300"},
-                "app_metadata": {"roles": roles.model_dump()["roles"]}
+                "app_metadata": {"organisation_id": organisation_id, "roles": roles.model_dump()["roles"]}
             })
 
-            organisation_id = str(uuid4())
+            
 
             self._client.table("organisations").insert({
                 "id": organisation_id,

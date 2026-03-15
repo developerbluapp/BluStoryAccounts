@@ -8,3 +8,4 @@ from .PinLoginRequest import PinLoginRequest
 from .GenerateDeepLinkRequest import GenerateDeepLinkRequest
 from .OrganisationSignupRequest import OrganisationSignupRequest
 from .OrganisationSigninRequest import OrganisationSigninRequest
+from .CreateOperatorRequest import CreateOperatorRequest

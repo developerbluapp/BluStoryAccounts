@@ -63,7 +63,7 @@ create table operators (
     id uuid primary key
         references auth.users(id)
         on delete cascade,
-
+    username text not null,
     organisation_id uuid not null
         references organisations(id)
         on delete cascade,

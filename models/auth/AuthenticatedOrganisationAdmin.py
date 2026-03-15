@@ -6,6 +6,7 @@ from uuid import UUID
 
 class AuthenticatedOrganisationAdmin(BaseModel):
     id: UUID
+    organisation_id: UUID
     email: str
     roles: List[str]
     aud: str

@@ -2,10 +2,25 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Annotated
 from supabase import Client
-from blustorymicroservices.BluStoryOperators.dependencies.clients import get_supabase_client
+from blustorymicroservices.BluStoryOperators.dependencies.dbclients import get_supabase_client
 from blustorymicroservices.BluStoryOperators.models.auth import AuthenticatedOperator, AuthenticatedMember, UserRoles, AuthenticatedOrganisationAdmin
 
 security = HTTPBearer(scheme_name="Bearer", auto_error=False)
+
+def get_bearer_token(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+) -> str:
+    """
+    Dependency that returns just the token string (without "Bearer " prefix).
+    Raises 401 if missing/invalid format.
+    """
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return credentials.credentials   # this is the actual token
 
 async def get_current_organisation_admin(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
@@ -49,6 +64,7 @@ async def get_current_organisation_admin(
 
     return AuthenticatedOrganisationAdmin(
         id=user.id,
+        organisation_id=user.app_metadata.get("organisation_id"),
         email=user.email,
         roles=roles,
         aud=user.aud
@@ -79,7 +95,7 @@ async def get_current_operator(
     user = auth_response.user
 
     roles = user.app_metadata.get("roles")
-    if UserRoles.LICENSE_HOLDER not in roles:
+    if UserRoles.OPERATOR not in roles:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User does not have the required role.",

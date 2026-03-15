@@ -1,9 +1,11 @@
 
+import operator
 import os
 from functools import lru_cache
 
+
 from blustorymicroservices.BluStoryOperators.settings import (
-    EmailSettings, RoleSettings, Settings, SupabaseSettings,PinSettings)
+    EmailSettings, RoleSettings, Settings, SupabaseSettings,OperatorSettings,DeepLinkSettings,InternalClientsSettings)
 
 
 @lru_cache
@@ -16,8 +18,8 @@ def get_settings() -> Settings:
         email=EmailSettings(
             suffix="@blustory.internal"
         ),
+        deep_link = DeepLinkSettings(),
         roles=RoleSettings(),
-        pin=PinSettings(
-            secret=os.environ["PIN_SECRET"]
-        )
+        operator=OperatorSettings(),
+        internal_clients=InternalClientsSettings()
     )

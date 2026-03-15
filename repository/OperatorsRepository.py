@@ -1,13 +1,16 @@
 from http.client import HTTPException
 from urllib import response
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fastapi import HTTPException
 
+from blustorymicroservices.BluStoryOperators.clients.api.OrganisationClient import OrganisationClient
 from blustorymicroservices.BluStoryOperators.models.auth import UserRoles
 from blustorymicroservices.BluStoryOperators.models.dtos import \
     AuthOperator, Operator, OperatorSession,Member, Roles
+from blustorymicroservices.BluStoryOperators.models.dtos.Organisation import Organisation
 from blustorymicroservices.BluStoryOperators.models.exceptions.operators import UserSignupAlreadyExistsException
+from blustorymicroservices.BluStoryOperators.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
 from blustorymicroservices.BluStoryOperators.settings.config import \
     get_settings
 from blustorymicroservices.BluStoryOperators.settings.Settings import \
@@ -21,10 +24,28 @@ class OperatorsRepository:
     def __init__(self, client: Client):
         self._client = client
 
-    def _map_supabase_auth_user_to_operator(self, user: SupabaseUserResponse) -> Operator:
+
+    def _map_supabase_auth_user_to_operator(self, user: SupabaseUserResponse, username: str) -> Operator:
         return Operator(
             id=user.id,
             email=user.email,
+            phone=user.phone,
+            username=username,
+            email_confirmed_at=user.email_confirmed_at,
+            phone_confirmed_at=user.phone_confirmed_at,
+            confirmed_at=user.confirmed_at,
+            last_sign_in_at=user.last_sign_in_at,
+            app_metadata=user.app_metadata,
+            user_metadata=user.user_metadata,
+            created_at=user.created_at,
+            updated_at=user.updated_at,
+            is_anonymous=user.is_anonymous
+        )
+    def _map_supabase_auth_user_to_organisation(self, user: SupabaseUserResponse,organisation_name: str) -> Organisation:
+        return Organisation(
+            id=user.id,
+            email=user.email,
+            organisation_name=organisation_name,
             phone=user.phone,
             email_confirmed_at=user.email_confirmed_at,
             phone_confirmed_at=user.phone_confirmed_at,
@@ -37,10 +58,54 @@ class OperatorsRepository:
             is_anonymous=user.is_anonymous
         )
 
-    def signup_operator(self, auth_operator_dto: AuthOperator, username: str) -> OperatorSession:
+    def create_operator(self,username: str,password:str,fake_email:str,organisation_name: str,organisation_id: UUID) -> CreatedOperatorResponse:
+        
+        try:
+  
+            role_response = self._client.table("roles").select("*").eq("name", UserRoles.OPERATOR).maybe_single().execute()
+            
+
+            roles = Roles(roles=[role_response.data["name"]])
+            response = self._client.auth.admin.create_user({
+                "email": fake_email,
+                "password": password,
+                "email_confirm": True,
+                "user_metadata": {"avatar_url": "https://picsum.photos/id/237/200/300"},
+                "app_metadata": {"roles": roles.model_dump()["roles"],
+                                "organisation_id": str(organisation_id) } 
+            })
+            self._client.table("operators").insert({
+            "id": str(response.user.id),
+            "username": username,
+            "organisation_id": str(organisation_id)
+            }).execute()
+            self._client.table("user_roles").insert({
+                "user_id": response.user.id,
+                "role_id": role_response.data["id"],
+                "organisation_id": str(organisation_id)
+            }).execute()
+            
+            if not response:
+                raise HTTPException(status_code=500, detail="Failed to insert member record")
+
+            return CreatedOperatorResponse(
+                id=response.user.id,
+                username=username,
+                password=password,
+                organisation_id=organisation_id
+            )
+        
+        except AuthApiError as e:
+            if "already been registered" in str(e):
+                raise UserAlreadyExistsException(username=username)
+            else:
+                raise
+    
+    # Deprecated
+    def signup_operator(self, auth_operator_dto: AuthOperator) -> OperatorSession:
         try:
                 # 1. Sign up user
-            role_response = self._client.table("roles").select("*").eq("name", UserRoles.LICENSE_HOLDER).maybe_single().execute()
+            role_response = self._client.table("roles").select("*").eq("name", UserRoles.OPERATOR).maybe_single().execute()
             roles = Roles(roles=[role_response.data["name"]])
             response = self._client.auth.admin.create_user({
                 "email": auth_operator_dto.email,
@@ -79,6 +144,7 @@ class OperatorsRepository:
                 "email": auth_operator_dto.email,
                 "password": auth_operator_dto.password
             })
+
             if "error" in session_response and session_response["error"]:
                 raise HTTPException(status_code=400, detail=session_response["error"]["message"])
             user_response = self._client.auth.get_user(session_response.session.access_token)
@@ -94,3 +160,12 @@ class OperatorsRepository:
         if not response.user:
             return None
         return self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**response.user.model_dump()))
+    def get_operators_by_organisation(self, organisation_id: UUID) -> list[Operator]:
+        operators_response = self._client.table("operators").select("*").eq("organisation_id", str(organisation_id)).execute()
+        operators = []
+        for operator_record in operators_response.data:
+            user_response = self._client.auth.admin.get_user_by_id(operator_record["id"])
+            if user_response.user:
+                operator = self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**user_response.user.model_dump()))
+                operators.append(operator)
+        return operators
