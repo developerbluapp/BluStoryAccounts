@@ -1,2 +1,3 @@
 from .MembersRepository import MembersRepository
 from .OperatorsRepository import OperatorsRepository
+from .OrganisationsRepository import OrganisationsRepository

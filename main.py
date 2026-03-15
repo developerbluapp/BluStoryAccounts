@@ -30,6 +30,7 @@ app.include_router(members.router)
 app.include_router(operators.router)
 app.include_router(auth.operator.router)
 app.include_router(auth.member.router)
+app.include_router(auth.organisation.router)
 # main.py
 @app.exception_handler(AppException)
 async def app_exception_handler(request: Request, exc: AppException):

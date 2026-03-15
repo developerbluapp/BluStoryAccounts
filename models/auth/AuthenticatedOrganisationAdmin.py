@@ -4,9 +4,8 @@ from pydantic import BaseModel
 from uuid import UUID
 
 
-class AuthenticatedOperator(BaseModel):
-    id :UUID
-    organisation_id: UUID
+class AuthenticatedOrganisationAdmin(BaseModel):
+    id: UUID
     email: str
     roles: List[str]
     aud: str

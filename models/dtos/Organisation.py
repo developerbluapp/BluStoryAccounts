@@ -7,9 +7,10 @@ from pydantic import BaseModel, ConfigDict, EmailStr
 from uuid import UUID
 
 
-class Operator(BaseModel):
+class Organisation(BaseModel):
     id: UUID
     email: EmailStr | None = None
+    organisation_name: str | None = None
     phone: str | None = None
     email_confirmed_at: datetime | None = None
     phone_confirmed_at: datetime | None = None
@@ -21,3 +22,4 @@ class Operator(BaseModel):
     updated_at: datetime | None = None
     is_anonymous: bool = False
     # model_config = ConfigDict(extra="ignore")
+    

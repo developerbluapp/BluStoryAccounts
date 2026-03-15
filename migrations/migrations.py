@@ -10,6 +10,7 @@ def run_migrations():
         port=os.environ["DB_PORT"],
         dbname=os.environ["DB_NAME"]
     )
+
     cur = conn.cursor()
     print("Running migrations...")
 
@@ -41,7 +42,8 @@ create table roles (
 insert into roles (id, name) values
 (uuid_generate_v5(uuid_nil(), 'member'), 'member'),
 (uuid_generate_v5(uuid_nil(), 'parent'), 'parent'),
-(uuid_generate_v5(uuid_nil(), 'operator'), 'operator');
+(uuid_generate_v5(uuid_nil(), 'operator'), 'operator'),
+(uuid_generate_v5(uuid_nil(), 'organisation_admin'), 'organisation_admin');
 
 
 -- =========================================
@@ -55,7 +57,7 @@ create table organisations (
 
 
 -- =========================================
--- OPERATORS (belong to organisation)
+-- OPERATORS
 -- =========================================
 create table operators (
     id uuid primary key
@@ -66,37 +68,46 @@ create table operators (
         references organisations(id)
         on delete cascade,
 
-    created_at timestamptz default now()
+    created_at timestamptz default now(),
+
+    -- required for composite FK from members
+    unique (id, organisation_id)
 );
 
 create index idx_operator_org
-    on operators(organisation_id);
+on operators(organisation_id);
 
 
 -- =========================================
--- MEMBERS (belong to operator)
+-- MEMBERS
 -- =========================================
 create table members (
     id uuid primary key
         references auth.users(id)
         on delete cascade,
 
-    operator_id uuid not null
-        references operators(id)
-        on delete cascade,
+    operator_id uuid not null,
+    organisation_id uuid not null,
 
     username text not null unique,
     first_name text not null,
+    created_at timestamptz default now(),
 
-    created_at timestamptz default now()
+    -- enforce same organisation as operator
+    foreign key (operator_id, organisation_id)
+        references operators(id, organisation_id)
+        on delete cascade
 );
 
 create index idx_member_operator
-    on members(operator_id);
+on members(operator_id);
+
+create index idx_member_org
+on members(organisation_id);
 
 
 -- =========================================
--- USER ROLES
+-- USER ROLES (SCOPED TO ORGANISATION)
 -- =========================================
 create table user_roles (
     user_id uuid
@@ -107,14 +118,41 @@ create table user_roles (
         references roles(id)
         on delete cascade,
 
-    primary key (user_id, role_id)
+    organisation_id uuid
+        references organisations(id)
+        on delete cascade,
+
+    primary key (user_id, role_id, organisation_id)
 );
 
-create index idx_user_roles_user_id
-    on user_roles(user_id);
+create index idx_user_roles_user
+on user_roles(user_id);
 
-create index idx_user_roles_role_id
-    on user_roles(role_id);
+create index idx_user_roles_role
+on user_roles(role_id);
+
+create index idx_user_roles_org
+on user_roles(organisation_id);
+                
+-- =========================================
+-- RLS Policies
+-- =========================================
+CREATE POLICY "Enable read access for public (full table scan)"
+ON public.organisations
+AS PERMISSIVE
+FOR SELECT
+TO public -- service_role
+USING (true);
+create policy "Enable read access for all users"
+ON "public"."user_roles"
+AS PERMISSIVE
+FOR SELECT
+TO public -- service_role
+USING (
+  true
+);     
+ALTER table public.user_roles enable row level security;    
+alter table public.organisations enable row level security;       
 
     """)
 
