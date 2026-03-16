@@ -3,5 +3,5 @@ from pydantic import BaseModel
 
 
 class AuthOperator(BaseModel):
-    email: str
+    username: str
     password: str

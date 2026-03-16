@@ -141,15 +141,22 @@ class OperatorsRepository:
                 raise
     def signin_operator(self, auth_operator_dto: AuthOperator) -> OperatorSession:
         try:
+            operators_response = self._client.table("operators").select("id").eq("username", auth_operator_dto.username).maybe_single().execute()
+            if not operators_response:
+                raise HTTPException(status_code=404, detail="Operator not found.")
+            operator_id = operators_response.data["id"]
+            user_response = self._client.auth.admin.get_user_by_id(operator_id)
+            email = user_response.user.email
+            
             session_response = self._client.auth.sign_in_with_password({
-                "email": auth_operator_dto.email,
+                "email": email,
                 "password": auth_operator_dto.password
             })
 
             if "error" in session_response and session_response["error"]:
                 raise HTTPException(status_code=400, detail=session_response["error"]["message"])
             user_response = self._client.auth.get_user(session_response.session.access_token)
-            operator = self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**user_response.user.model_dump()))
+            operator = self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**user_response.user.model_dump()),username=auth_operator_dto.username)
             return OperatorSession(
                 operator=operator,
                 session=session_response.session

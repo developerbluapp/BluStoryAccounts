@@ -23,5 +23,5 @@ router = APIRouter(prefix="/auth/operator", tags=["auth-operator"])
 @router.post("/signin", response_model=OperatorSessionResponse ,status_code=201)
 def signin_operator(body: OperatorSigninRequest, operator_service: OperatorAuthServiceDEP):
     session_response= operator_service.signin_operator(body)
-    return OperatorSessionResponse(operator=OperatorResponse(id=session_response.operator.id,email=session_response.operator.email),session=session_response.session) 
+    return OperatorSessionResponse(operator=OperatorResponse(id=session_response.operator.id,username=session_response.operator.username),session=session_response.session) 
 
