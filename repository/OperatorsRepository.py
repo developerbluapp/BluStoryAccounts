@@ -163,9 +163,11 @@ class OperatorsRepository:
     def get_operators_by_organisation(self, organisation_id: UUID) -> list[Operator]:
         operators_response = self._client.table("operators").select("*").eq("organisation_id", str(organisation_id)).execute()
         operators = []
+        print(operators_response.data,"operators response data in repo",organisation_id)
         for operator_record in operators_response.data:
             user_response = self._client.auth.admin.get_user_by_id(operator_record["id"])
             if user_response.user:
-                operator = self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**user_response.user.model_dump()))
+                username = operator_record["username"]
+                operator = self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**user_response.user.model_dump()),username=username)
                 operators.append(operator)
         return operators

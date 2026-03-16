@@ -37,7 +37,7 @@ def get_operators(
     operator_service: OperatorServiceDEP,
     current_organisation: AuthenticatedOrganisationAdminDEP,
 ):
-    organisation_id = current_organisation.id
+    organisation_id = current_organisation.organisation_id
 
     operators = operator_service.get_operators_by_organisation(organisation_id)
 
