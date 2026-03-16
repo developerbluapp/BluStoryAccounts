@@ -26,32 +26,6 @@ OrganisationServiceDEP = Annotated[OrganisationService, Depends(get_organisation
 router = APIRouter(prefix="/organisations", tags=["organisations"])
 
 
-@router.get("/me", response_model=OrganisationNameResponse)
-def get_organisation_me(
-    organisation_service: OrganisationServiceDEP,
-    current_organisation_admin: AuthenticatedOrganisationAdminDEP,
-):
-    current_organisation_id = current_organisation_admin.organisation_id
-    print(current_organisation_id,"current organisation id in router",organisation_id)
-    if current_organisation_id != organisation_id:
-        raise AppException(
-            code="forbidden",
-            message="You do not have access to this resource",
-            status=403,
-        )
-
-
-    organisation_name = organisation_service.get_organisation_name_by_id(organisation_id)
-    print(organisation_name,"organisation name in router")
-
-    if not organisation_name:
-        raise AppException(
-            code="organisation_name_not_found",
-            message="Operator not found",
-            status=404,
-        )
-    return OrganisationNameResponse(id=organisation_id, organisation_name=organisation_name)
-
 
 
 @router.get("/{organisation_id}", response_model=OrganisationNameResponse)

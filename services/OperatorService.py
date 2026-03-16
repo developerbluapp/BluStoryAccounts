@@ -21,15 +21,14 @@ class OperatorService:
         self._organisation_client = organisation_client
 
 
-    def _build_email(self, username: str,organisation_name:str) -> str:
+    def _build_operator_email(self, username: str,organisation_name:str) -> str:
         organisation_name = OrganisationHelper.clean_organisation_name(organisation_name)
         return f"{username}.{organisation_name}{get_settings().email.suffix}"
     def register_operator(self, organisation_id: UUID) -> CreatedOperatorResponse:
         username = AuthHelper.create_random_username()
         password = AuthHelper.create_random_password()  # You'll need to implement this method
         organisation_data = self._organisation_client.get_organisation_name(organisation_id)
-        fake_email = self._build_email(username, organisation_data.organisation_name)
-        print(fake_email,"fake email in service")
+        fake_email = self._build_operator_email(username, organisation_data.organisation_name)
         return self._operator_repo.create_operator(username, password, fake_email, organisation_data.organisation_name,organisation_id)
     def reset_password(self, organisation_id: UUID, operator_id: UUID) ->ResetOperatorPasswordResponse:
         new_password = AuthHelper.create_random_password()

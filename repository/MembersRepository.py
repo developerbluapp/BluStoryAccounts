@@ -5,6 +5,8 @@ from uuid import UUID
 
 from fastapi import HTTPException
 
+from blustorymicroservices.BluStoryOperators.helpers.AuthHelper import AuthHelper
+from blustorymicroservices.BluStoryOperators.helpers.OrganisationHelper import OrganisationHelper
 from blustorymicroservices.BluStoryOperators.models.auth import UserRoles
 from blustorymicroservices.BluStoryOperators.models.dtos import \
     AuthOperator, AuthMember, Operator, OperatorSession,Member, MemberSession, Roles, Roles
@@ -26,16 +28,27 @@ class MembersRepository:
     def __init__(self, client: Client):
         self._client = client
      
-    def _build_email(self, username: str) -> str:
-        return f"{username}{get_settings().email.suffix}"
+
+    def _build_member_email(self, username: str,operator_id:str,organisation_id:str) -> str:
+        # TODO You would want a request from the routes and get the data but couldn't be bothered.
+        operator_response = self._client.table("operators").select("username").eq("id", str(operator_id)).maybe_single().execute()
+        if not operator_response:
+            raise HTTPException(status_code=404, detail="Operator does not exist.")
+        organisation_response = self._client.table("organisations").select("name").eq("id", str(organisation_id)).maybe_single().execute()
+        if not organisation_response:
+            raise HTTPException(status_code=404, detail="Organisation does not exist.")
+        operator_username = operator_response.data["username"]
+        organisation_name = organisation_response.data["name"]
+        organisation_name = OrganisationHelper.clean_organisation_name(organisation_name)
+        return f"{username}.{operator_username}.{organisation_name}{get_settings().email.suffix}"
     
 
     def _generate_pin(self,length=4) -> str:
         # Generates a random numeric PIN e.g. "7392"
         return "".join([str(secrets.randbelow(10)) for _ in range(length)])
-    def generate_setup_link(self, username: str) -> str:
+    def generate_setup_link(self, username: str,operator_id:UUID,organisation_id: UUID) -> str:
         settings = get_settings()
-        fake_email = self._build_email(username)
+        fake_email = self._build_member_email(username,operator_id,organisation_id)
         print(f"settings.deeplink.url: {settings.deeplink.url}")
         link_response = self._client.auth.admin.generate_link({
             "type": "magiclink",
@@ -46,21 +59,19 @@ class MembersRepository:
         })
 
         return link_response.properties.action_link
-    def _derive_password(self, plain_pin: str) -> str:
-        secret = get_settings().pin.secret
-        return hmac.new(
-            secret.encode(),
-            plain_pin.encode(),
-            hashlib.sha256
-        ).hexdigest()
-    def create_member(self,username: str,first_name:str,operator_id: UUID) -> Member:
+
+    def create_member(self,username: str,first_name:str,operator_id: UUID,organisation_id :UUID) -> Member:
         
         try:
-            # Auto-generate PIN instead of accepting one from request
-            plain_pin = self._generate_pin(4)
+
+
             role_response = self._client.table("roles").select("*").eq("name", UserRoles.STUDENT).maybe_single().execute()
-            fake_email = self._build_email(username)
-            password = self._derive_password(plain_pin)
+            if not role_response:
+                raise HTTPException(status_code=404, detail="Role does not exist.")
+
+
+            fake_email = self._build_member_email(username,operator_id,organisation_id)
+            password = AuthHelper.create_random_password()
             roles = Roles(roles=[role_response.data["name"]])
             response = self._client.auth.admin.create_user({
                 "email": fake_email,
@@ -68,17 +79,20 @@ class MembersRepository:
                 "email_confirm": True,
                 "user_metadata": {"avatar_url": "https://picsum.photos/id/237/200/300"},
                 "app_metadata": {"roles": roles.model_dump()["roles"],
-                                "operator_id": operator_id } 
+                                "operator_id": operator_id,
+                                "organisation_id":str(organisation_id) } 
             })
             self._client.table("members").insert({
             "id": str(response.user.id),
             "username": username,
             "first_name":first_name,
-            "operator_id": str(operator_id)
+            "operator_id": str(operator_id),
+            "organisation_id":str(organisation_id)
             }).execute()
             self._client.table("user_roles").insert({
                 "user_id": response.user.id,
-                "role_id": role_response.data["id"]
+                "role_id": role_response.data["id"],
+                "organisation_id":str(organisation_id)
             }).execute()
             
             if not response:
@@ -99,6 +113,9 @@ class MembersRepository:
             .select("*")\
             .eq("operator_id", str(operator_id))\
             .execute()
+        if not response:
+            raise HTTPException(status_code=404,detail="No Members exist.")
+
         return [Member(**s) for s in response.data]
 
     def get_member_by_id(self, operator_id: UUID, member_id: UUID) -> Member | None:
@@ -108,6 +125,8 @@ class MembersRepository:
             .eq("id", str(member_id))\
             .maybe_single()\
             .execute()
+        if not response:
+             raise HTTPException(status_code=404,detail="Member does not exist.")
         return Member(id=response.data["id"], username=response.data["username"], first_name=response.data["first_name"]) if response else None
 
 
@@ -168,7 +187,7 @@ class MembersRepository:
             raise HTTPException(status_code=401, detail="Incorrect PIN")
 
         # 3. Generate a magic link session for the member
-        email = self._build_email(member["username"])
+        email = self._build_member_email(member["username"])
         link_response = self._client.auth.admin.generate_link({
             "type": "magiclink",
             "email": email

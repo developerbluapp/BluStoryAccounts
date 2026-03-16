@@ -25,14 +25,11 @@ AuthOperatorDEP = Annotated[AuthenticatedOperator, Depends(get_current_operator)
 AuthMemberDEP = Annotated[AuthenticatedMember, Depends(get_current_member)]
 router = APIRouter(prefix="/members", tags=["members"])
 
-@router.post("/reset-pin", response_model=ResetPinResponse)
-async def reset_pin(body: ResetPinRequest, member_service: MemberServiceDEP):
-    return member_service.reset_member_pin(body.member_id)
-
 @router.post("/generate-deep-link", response_model=MemberGenerateDeepLinkResponse)
 async def generate_deep_link(body: GenerateDeepLinkRequest, member_service: MemberServiceDEP, current_operator: AuthOperatorDEP):
     operator_id = current_operator.id
-    return member_service.generate_member_deep_link(operator_id, body.member_id)
+    organisation_id = current_operator.organisation_id
+    return member_service.generate_member_deep_link(operator_id, body.member_id,organisation_id)
 
 @router.get("/profile", response_model=MemberResponse)
 def get_my_member(
@@ -49,12 +46,14 @@ def create_member(
     body: CreateUserRequest,
     member_service: MemberServiceDEP,
     current_operator: AuthOperatorDEP,
-):
+):  
+    organisation_id = current_operator.organisation_id
     operator_id = str(current_operator.id)
     return member_service.register_member(
         body.username,
         body.first_name,
         operator_id=operator_id,
+        organisation_id=organisation_id
     )
 
 
