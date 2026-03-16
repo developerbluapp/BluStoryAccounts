@@ -12,3 +12,4 @@ from .api.organisations.OrganisationResponse import OrganisationResponse
 from .api.operators.OperatorSessionReponse import OperatorSessionResponse
 from .api.organisations.OrganisationSessionResponse import OrganisationSessionResponse
 from .api.organisations.OrganisationNameResponse import OrganisationNameResponse
+from .api.operators.ResetOperatorPasswordResponse import ResetOperatorPasswordResponse

@@ -11,6 +11,7 @@ from blustorymicroservices.BluStoryOperators.models.dtos import \
 from blustorymicroservices.BluStoryOperators.models.dtos.Organisation import Organisation
 from blustorymicroservices.BluStoryOperators.models.exceptions.operators import UserSignupAlreadyExistsException
 from blustorymicroservices.BluStoryOperators.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
+from blustorymicroservices.BluStoryOperators.models.responses.api.operators.ResetOperatorPasswordResponse import ResetOperatorPasswordResponse
 from blustorymicroservices.BluStoryOperators.settings.config import \
     get_settings
 from blustorymicroservices.BluStoryOperators.settings.Settings import \
@@ -171,3 +172,17 @@ class OperatorsRepository:
                 operator = self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**user_response.user.model_dump()),username=username)
                 operators.append(operator)
         return operators
+    def reset_password(self, organisation_id: UUID, operator_id: UUID, new_password: str) -> ResetOperatorPasswordResponse:
+        # Reset password using the user's ID
+        operators_response = self._client.table("operators").select("*").eq("organisation_id", str(organisation_id)).eq("id", str(operator_id)).maybe_single().execute()
+        if not operators_response:
+            raise HTTPException(status_code=404, detail="Operator not found or not apart of this organisation.")
+        response = self._client.auth.admin.update_user_by_id(
+            uid=str(operator_id),
+            attributes={"password": new_password}
+        )
+        return ResetOperatorPasswordResponse(
+            id=response.user.id,
+            username=operators_response.data["username"],
+            password=new_password,
+            organisation_id=organisation_id)

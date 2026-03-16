@@ -7,6 +7,7 @@ from blustorymicroservices.BluStoryOperators.clients.api.OrganisationClient impo
 from blustorymicroservices.BluStoryOperators.helpers.OrganisationHelper import OrganisationHelper
 from blustorymicroservices.BluStoryOperators.models.dtos import \
     Operator, Member
+from blustorymicroservices.BluStoryOperators.models.responses.api.operators.ResetOperatorPasswordResponse import ResetOperatorPasswordResponse
 from blustorymicroservices.BluStoryOperators.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
 from blustorymicroservices.BluStoryOperators.repository import \
     OperatorsRepository, MembersRepository
@@ -53,7 +54,9 @@ class OperatorService:
         fake_email = self._build_email(username, organisation_data.organisation_name)
         print(fake_email,"fake email in service")
         return self._operator_repo.create_operator(username, password, fake_email, organisation_data.organisation_name,organisation_id)
-
+    def reset_password(self, organisation_id: UUID, operator_id: UUID) ->ResetOperatorPasswordResponse:
+        new_password = self.create_random_password()
+        return self._operator_repo.reset_password(organisation_id, operator_id, new_password)
     def get_operator_by_id(self, operator_id: UUID) -> Operator | None:
         return self._operator_repo.get_operator_by_id(operator_id)
     def get_operators_by_organisation(self, organisation_id: UUID) -> list[Operator]:

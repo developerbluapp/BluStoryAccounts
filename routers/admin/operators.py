@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends
 from blustorymicroservices.BluStoryOperators.models.requests import CreateOperatorRequest
 from blustorymicroservices.BluStoryOperators.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
 from blustorymicroservices.BluStoryOperators.models.responses.api.operators.OperatorResponse import OperatorResponse
+from blustorymicroservices.BluStoryOperators.models.responses.api.operators.ResetOperatorPasswordResponse import ResetOperatorPasswordResponse
 from blustorymicroservices.BluStoryOperators.services import OperatorService
 from dependencies import get_operator_service
 from services import OperatorService
@@ -22,6 +23,15 @@ AuthenticatedOperatorDEP = Annotated[AuthenticatedOperator, Depends(get_current_
 router = APIRouter(prefix="/admin/operator", tags=["admin_operator"])
 
 
+@router.post("/reset-password/{operator_id}", response_model=ResetOperatorPasswordResponse, status_code=201)
+def reset_password(
+    operator_id: UUID,
+    operator_service: OperatorServiceDEP,
+    current_organisation: AuthenticatedOrganisationAdminDEP,
+):
+    organisation_id = current_organisation.organisation_id
+
+    return operator_service.reset_password(organisation_id, operator_id)
 
 @router.post("", response_model=CreatedOperatorResponse, status_code=201)
 def create_operator(
