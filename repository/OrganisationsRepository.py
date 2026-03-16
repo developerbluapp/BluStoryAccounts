@@ -8,6 +8,7 @@ from blustorymicroservices.BluStoryOperators.models.auth import UserRoles
 from blustorymicroservices.BluStoryOperators.models.dtos import \
     AuthOrganisation, Organisation, OrganisationSession,Member, Roles,Organisation
 from blustorymicroservices.BluStoryOperators.models.exceptions.organisations import UserSignupAlreadyExistsException
+from blustorymicroservices.BluStoryOperators.models.responses.api.organisations.CreateOrganisationAdminResponse import CreatedOrganisationAdminResponse
 from blustorymicroservices.BluStoryOperators.settings.config import \
     get_settings
 from blustorymicroservices.BluStoryOperators.settings.Settings import \
@@ -181,44 +182,53 @@ class OrganisationsRepository:
 
         except AuthApiError as e:
             raise HTTPException(status_code=400, detail=str(e))
-    
-    def add_admin_to_organisation(self, auth_organisation_dto: AuthOrganisation, organisation_name: str):
-        # 0️⃣ Find the existing organisation
-        org = self._client.table("organisations") \
-            .select("*") \
-            .eq("name", organisation_name) \
-            .maybe_single() \
-            .execute()
+        
+    def create_and_assign_organisation_admin(self, email:str,password:str, organisation_name: str) -> CreatedOrganisationAdminResponse:
+        try:
+            # 0️⃣ Find the existing organisation
+            org = self._client.table("organisations") \
+                .select("*") \
+                .eq("name", organisation_name) \
+                .maybe_single() \
+                .execute()
 
-        if not org:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Organisation '{organisation_name}' not found"
-            )
+            if not org:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Organisation '{organisation_name}' not found"
+                )
 
-        organisation_id = org.data["id"]
+            organisation_id = org.data["id"]
+            
+            # 1️⃣ Get organisation admin role
+            role_response = self._client.table("roles") \
+                .select("*") \
+                .eq("name", UserRoles.ORGANISATION_ADMIN) \
+                .maybe_single() \
+                .execute()
 
-        # 1️⃣ Get organisation_admin role
-        role_response = self._client.table("roles") \
-            .select("*") \
-            .eq("name", UserRoles.ORGANISATION_ADMIN) \
-            .maybe_single() \
-            .execute()
+            roles = Roles(roles=[role_response.data["name"]])
 
-        # 2️⃣ Create new admin user
-        response = self._client.auth.admin.create_user({
-            "email": auth_organisation_dto.email,
-            "password": auth_organisation_dto.password,
-            "email_confirm": True,
-            "user_metadata": {"avatar_url": "https://picsum.photos/id/237/200/300"},
-            "app_metadata": {"roles": [role_response.data["name"]]}
-        })
+            # 2️⃣ Create new admin user
+            response = self._client.auth.admin.create_user({
+                "email": email,
+                "password": password,
+                "email_confirm": True,
+                "user_metadata": {"avatar_url": "https://picsum.photos/id/237/200/300"},
+                "app_metadata": {"roles": roles.model_dump()["roles"]}
+            })
 
-        # 3️⃣ Assign organisation_admin role to this user
-        self._client.table("user_roles").insert({
-            "user_id": response.user.id,
-            "role_id": role_response.data["id"],
-            "organisation_id": organisation_id
-        }).execute()
+            # 3️⃣ Assign organisation_admin role to this user
+            self._client.table("user_roles").insert({
+                "user_id": response.user.id,
+                "role_id": role_response.data["id"],
+                "organisation_id": organisation_id
+            }).execute()
+            
 
-        return response.user
+            return CreatedOrganisationAdminResponse(id=response.user.id,email=email,password=password,organisation_id=organisation_id)
+        except AuthApiError as e:
+            if "already been registered" in str(e):
+                raise UserSignupAlreadyExistsException(email=email, organisation=organisation_name)
+            else:
+                raise

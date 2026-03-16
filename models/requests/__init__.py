@@ -9,3 +9,4 @@ from .GenerateDeepLinkRequest import GenerateDeepLinkRequest
 from .OrganisationSignupRequest import OrganisationSignupRequest
 from .OrganisationSigninRequest import OrganisationSigninRequest
 from .CreateOperatorRequest import CreateOperatorRequest
+from .AddToOrganisationRequest import AddToOrganisationRequest

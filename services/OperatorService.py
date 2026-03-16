@@ -12,7 +12,7 @@ from blustorymicroservices.BluStoryOperators.models.responses.api.operators.Crea
 from blustorymicroservices.BluStoryOperators.repository import \
     OperatorsRepository, MembersRepository
 from blustorymicroservices.BluStoryOperators.settings.config import get_settings
-
+from blustorymicroservices.BluStoryOperators.helpers.AuthHelper import AuthHelper
 
 class OperatorService:
     def __init__(self, operator_repo: OperatorsRepository, member_repo: MembersRepository, organisation_client: OrganisationClient):
@@ -20,42 +20,19 @@ class OperatorService:
         self._member_repo = member_repo
         self._organisation_client = organisation_client
 
-    def create_random_username(self,length: int = 10) -> str:
-        settings = get_settings()
-        alphabet = string.ascii_lowercase + string.digits
-        return settings.operator.prefix + ''.join(secrets.choice(alphabet) for _ in range(length))
 
-    def create_random_password(self,length: int = 20) -> str:
-        if length < 8:
-            raise ValueError("Password length should be at least 8")
-
-        lowercase = secrets.choice(string.ascii_lowercase)
-        uppercase = secrets.choice(string.ascii_uppercase)
-        digit = secrets.choice(string.digits)
-        symbol = secrets.choice("!@#$%^&*()-+")
-
-        remaining_length = length - 4
-        alphabet = string.ascii_letters + string.digits + "!@#$%^&*()-+"
-
-        remaining = [secrets.choice(alphabet) for _ in range(remaining_length)]
-
-        password_list = [lowercase, uppercase, digit, symbol] + remaining
-
-        random.SystemRandom().shuffle(password_list)
-
-        return ''.join(password_list)
     def _build_email(self, username: str,organisation_name:str) -> str:
         organisation_name = OrganisationHelper.clean_organisation_name(organisation_name)
         return f"{username}.{organisation_name}{get_settings().email.suffix}"
     def register_operator(self, organisation_id: UUID) -> CreatedOperatorResponse:
-        username = self.create_random_username()
-        password = self.create_random_password()  # You'll need to implement this method
+        username = AuthHelper.create_random_username()
+        password = AuthHelper.create_random_password()  # You'll need to implement this method
         organisation_data = self._organisation_client.get_organisation_name(organisation_id)
         fake_email = self._build_email(username, organisation_data.organisation_name)
         print(fake_email,"fake email in service")
         return self._operator_repo.create_operator(username, password, fake_email, organisation_data.organisation_name,organisation_id)
     def reset_password(self, organisation_id: UUID, operator_id: UUID) ->ResetOperatorPasswordResponse:
-        new_password = self.create_random_password()
+        new_password = AuthHelper.create_random_password()
         return self._operator_repo.reset_password(organisation_id, operator_id, new_password)
     def get_operator_by_id(self, operator_id: UUID) -> Operator | None:
         return self._operator_repo.get_operator_by_id(operator_id)

@@ -136,7 +136,7 @@ class OperatorsRepository:
             )
         except AuthApiError as e:
             if "already been registered" in str(e):
-                raise UserSignupAlreadyExistsException(email=auth_operator_dto.email)
+                raise UserSignupAlreadyExistsException(email=auth_operator_dto.username)
             else:
                 raise
     def signin_operator(self, auth_operator_dto: AuthOperator) -> OperatorSession:
