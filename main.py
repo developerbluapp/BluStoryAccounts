@@ -5,8 +5,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from fastapi.middleware.cors import CORSMiddleware
-from blustorymicroservices.BluStoryOperators.routers import members,auth, operators,admin,organisations
-from blustorymicroservices.BluStoryOperators.models.exceptions import AppException
+from blustorymicroservices.BluStoryAccounts.routers import members,auth, operators,admin,organisations
+from blustorymicroservices.BluStoryAccounts.models.exceptions import AppException
 from fastapi.exceptions import RequestValidationError
 from starlette import status
 import logging

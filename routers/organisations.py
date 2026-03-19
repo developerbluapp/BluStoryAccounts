@@ -3,19 +3,19 @@ from ast import Or
 from typing import Annotated
 from uuid import UUID
 
-from blustorymicroservices.BluStoryOperators.dependencies.auth import  get_current_organisation_admin
-from blustorymicroservices.BluStoryOperators.dependencies.services import get_operator_service, get_organisation_service
-from blustorymicroservices.BluStoryOperators.models.auth import AuthenticatedOperator,AuthenticatedOrganisationAdmin
-from blustorymicroservices.BluStoryOperators.models.exceptions.base import \
+from blustorymicroservices.BluStoryAccounts.dependencies.auth import  get_current_organisation_admin
+from blustorymicroservices.BluStoryAccounts.dependencies.services import get_operator_service, get_organisation_service
+from blustorymicroservices.BluStoryAccounts.models.auth import AuthenticatedOperator,AuthenticatedOrganisationAdmin
+from blustorymicroservices.BluStoryAccounts.models.exceptions.base import \
     AppException
 from fastapi import APIRouter, Depends
 
-from blustorymicroservices.BluStoryOperators.models.requests import CreateOperatorRequest
-from blustorymicroservices.BluStoryOperators.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
-from blustorymicroservices.BluStoryOperators.models.responses.api.operators.OperatorResponse import OperatorResponse
-from blustorymicroservices.BluStoryOperators.models.responses.api.organisations.OrganisationNameResponse import OrganisationNameResponse
-from blustorymicroservices.BluStoryOperators.models.responses.api.organisations.OrganisationResponse import OrganisationResponse
-from blustorymicroservices.BluStoryOperators.services import OperatorService, OrganisationService
+from blustorymicroservices.BluStoryAccounts.models.requests import CreateOperatorRequest
+from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.OperatorResponse import OperatorResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.OrganisationNameResponse import OrganisationNameResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.OrganisationResponse import OrganisationResponse
+from blustorymicroservices.BluStoryAccounts.services import OperatorService, OrganisationService
 from dependencies import get_current_operator
 from services import OperatorService
 

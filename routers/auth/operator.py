@@ -2,12 +2,12 @@
 from typing import Annotated
 from uuid import UUID
 
-from blustorymicroservices.BluStoryOperators.models.exceptions.base import \
+from blustorymicroservices.BluStoryAccounts.models.exceptions.base import \
     AppException
 from fastapi import APIRouter, Depends, HTTPException, HTTPException
 
-from blustorymicroservices.BluStoryOperators.models.responses.api.operators.OperatorSessionReponse import OperatorSessionResponse
-from blustorymicroservices.BluStoryOperators.models.responses.api.operators.OperatorResponse import OperatorResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.OperatorSessionReponse import OperatorSessionResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.OperatorResponse import OperatorResponse
 from dependencies import get_operator_auth_service
 from models.requests import OperatorSignupRequest, OperatorSigninRequest
 from services import OperatorAuthService

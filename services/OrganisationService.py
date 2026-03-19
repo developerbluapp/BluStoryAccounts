@@ -1,14 +1,14 @@
 from uuid import UUID
 
-from blustorymicroservices.BluStoryOperators.models.dtos import \
+from blustorymicroservices.BluStoryAccounts.models.dtos import \
     Organisation, Member
-from blustorymicroservices.BluStoryOperators.models.dtos.AuthOrganisation import AuthOrganisation
-from blustorymicroservices.BluStoryOperators.models.responses.api.organisations.CreateOrganisationAdminResponse import CreatedOrganisationAdminResponse
-from blustorymicroservices.BluStoryOperators.models.responses.api.organisations.OrganisationNameResponse import OrganisationNameResponse
-from blustorymicroservices.BluStoryOperators.repository import \
+from blustorymicroservices.BluStoryAccounts.models.dtos.AuthOrganisation import AuthOrganisation
+from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.CreateOrganisationAdminResponse import CreatedOrganisationAdminResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.OrganisationNameResponse import OrganisationNameResponse
+from blustorymicroservices.BluStoryAccounts.repository import \
     OrganisationsRepository
 
-from blustorymicroservices.BluStoryOperators.helpers.AuthHelper import AuthHelper
+from blustorymicroservices.BluStoryAccounts.helpers.AuthHelper import AuthHelper
 class OrganisationService:
     def __init__(self, organisation_repo: OrganisationsRepository):
         self._organisation_repo = organisation_repo

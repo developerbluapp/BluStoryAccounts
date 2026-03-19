@@ -2,13 +2,13 @@
 from typing import Annotated
 from uuid import UUID
 
-from blustorymicroservices.BluStoryOperators.dependencies.services import get_organisation_auth_service
-from blustorymicroservices.BluStoryOperators.models.exceptions.base import \
+from blustorymicroservices.BluStoryAccounts.dependencies.services import get_organisation_auth_service
+from blustorymicroservices.BluStoryAccounts.models.exceptions.base import \
     AppException
 from fastapi import APIRouter, Depends, HTTPException, HTTPException
 
-from blustorymicroservices.BluStoryOperators.models.responses.api.organisations.OrganisationSessionResponse import OrganisationSessionResponse
-from blustorymicroservices.BluStoryOperators.models.responses.api.organisations.OrganisationResponse import OrganisationResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.OrganisationSessionResponse import OrganisationSessionResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.OrganisationResponse import OrganisationResponse
 from models.requests import OrganisationSignupRequest, OrganisationSigninRequest
 from services import OrganisationAuthService
 OrganisationAuthServiceDEP = Annotated[OrganisationAuthService, Depends(get_organisation_auth_service)]

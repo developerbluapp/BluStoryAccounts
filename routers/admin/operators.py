@@ -2,17 +2,17 @@
 from typing import Annotated
 from uuid import UUID
 
-from blustorymicroservices.BluStoryOperators.dependencies.auth import get_current_operator, get_current_organisation_admin
-from blustorymicroservices.BluStoryOperators.models.auth import AuthenticatedOperator,AuthenticatedOrganisationAdmin
-from blustorymicroservices.BluStoryOperators.models.exceptions.base import \
+from blustorymicroservices.BluStoryAccounts.dependencies.auth import get_current_operator, get_current_organisation_admin
+from blustorymicroservices.BluStoryAccounts.models.auth import AuthenticatedOperator,AuthenticatedOrganisationAdmin
+from blustorymicroservices.BluStoryAccounts.models.exceptions.base import \
     AppException
 from fastapi import APIRouter, Depends
 
-from blustorymicroservices.BluStoryOperators.models.requests import CreateOperatorRequest
-from blustorymicroservices.BluStoryOperators.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
-from blustorymicroservices.BluStoryOperators.models.responses.api.operators.OperatorResponse import OperatorResponse
-from blustorymicroservices.BluStoryOperators.models.responses.api.operators.ResetOperatorPasswordResponse import ResetOperatorPasswordResponse
-from blustorymicroservices.BluStoryOperators.services import OperatorService
+from blustorymicroservices.BluStoryAccounts.models.requests import CreateOperatorRequest
+from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.OperatorResponse import OperatorResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.ResetOperatorPasswordResponse import ResetOperatorPasswordResponse
+from blustorymicroservices.BluStoryAccounts.services import OperatorService
 from dependencies import get_operator_service
 from services import OperatorService
 

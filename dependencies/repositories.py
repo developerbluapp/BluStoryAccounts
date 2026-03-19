@@ -1,6 +1,6 @@
-from blustorymicroservices.BluStoryOperators.dependencies import \
+from blustorymicroservices.BluStoryAccounts.dependencies import \
     get_supabase_client
-from blustorymicroservices.BluStoryOperators.repository import \
+from blustorymicroservices.BluStoryAccounts.repository import \
     OrganisationsRepository, MembersRepository,OperatorsRepository
 
 from fastapi import Depends

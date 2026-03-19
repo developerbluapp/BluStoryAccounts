@@ -1,7 +1,7 @@
 import requests
 from uuid import UUID
 
-from blustorymicroservices.BluStoryOperators.models.responses.api.organisations.OrganisationNameResponse import OrganisationNameResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.OrganisationNameResponse import OrganisationNameResponse
 
 
 class OperatorClient:

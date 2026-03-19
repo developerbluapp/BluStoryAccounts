@@ -1,10 +1,10 @@
 
-from blustorymicroservices.BluStoryOperators.settings import Settings
-from blustorymicroservices.BluStoryOperators.settings.config import \
+from blustorymicroservices.BluStoryAccounts.settings import Settings
+from blustorymicroservices.BluStoryAccounts.settings.config import \
     get_settings
 from fastapi import Depends
 from supabase import Client, create_client
-from blustorymicroservices.BluStoryOperators.clients.api.OrganisationClient import OrganisationClient
+from blustorymicroservices.BluStoryAccounts.clients.api.OrganisationClient import OrganisationClient
 
 
 def get_supabase_client(settings: Settings = Depends(get_settings)) -> Client:

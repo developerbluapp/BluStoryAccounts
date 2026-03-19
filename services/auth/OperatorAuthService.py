@@ -3,10 +3,10 @@ import secrets
 import string
 from pydantic import EmailStr
 from uuid import UUID
-from blustorymicroservices.BluStoryOperators.models.dtos import \
+from blustorymicroservices.BluStoryAccounts.models.dtos import \
     AuthOperator, AuthOperator, Operator, Member
-from blustorymicroservices.BluStoryOperators.models.dtos import OperatorSession
-from blustorymicroservices.BluStoryOperators.repository import \
+from blustorymicroservices.BluStoryAccounts.models.dtos import OperatorSession
+from blustorymicroservices.BluStoryAccounts.repository import \
     OperatorsRepository, MembersRepository
 
 

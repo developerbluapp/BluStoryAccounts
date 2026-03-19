@@ -1,15 +1,15 @@
 import os
 
-from blustorymicroservices.BluStoryOperators.clients.api.OrganisationClient import OrganisationClient
-from blustorymicroservices.BluStoryOperators.dependencies.clients import get_organisation_client
-from blustorymicroservices.BluStoryOperators.dependencies.repositories import \
+from blustorymicroservices.BluStoryAccounts.clients.api.OrganisationClient import OrganisationClient
+from blustorymicroservices.BluStoryAccounts.dependencies.clients import get_organisation_client
+from blustorymicroservices.BluStoryAccounts.dependencies.repositories import \
     get_member_repository,get_operator_repository, get_organisation_admin_repository
-from blustorymicroservices.BluStoryOperators.repository import \
+from blustorymicroservices.BluStoryAccounts.repository import \
     OperatorsRepository, MembersRepository, OrganisationsRepository
-from blustorymicroservices.BluStoryOperators.services import OperatorService, MemberService, OperatorAuthService,MemberAuthService, OrganisationService
+from blustorymicroservices.BluStoryAccounts.services import OperatorService, MemberService, OperatorAuthService,MemberAuthService, OrganisationService
 
-from blustorymicroservices.BluStoryOperators.services.auth.OrganisationAuthService import OrganisationAuthService
-from blustorymicroservices.BluStoryOperators.settings import (
+from blustorymicroservices.BluStoryAccounts.services.auth.OrganisationAuthService import OrganisationAuthService
+from blustorymicroservices.BluStoryAccounts.settings import (
     EmailSettings, RoleSettings, Settings, SupabaseSettings)
 from fastapi import Depends
 from supabase import Client

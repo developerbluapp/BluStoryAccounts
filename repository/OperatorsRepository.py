@@ -4,22 +4,22 @@ from uuid import UUID, uuid4
 
 from fastapi import HTTPException
 
-from blustorymicroservices.BluStoryOperators.clients.api.OrganisationClient import OrganisationClient
-from blustorymicroservices.BluStoryOperators.models.auth import UserRoles
-from blustorymicroservices.BluStoryOperators.models.dtos import \
+from blustorymicroservices.BluStoryAccounts.clients.api.OrganisationClient import OrganisationClient
+from blustorymicroservices.BluStoryAccounts.models.auth import UserRoles
+from blustorymicroservices.BluStoryAccounts.models.dtos import \
     AuthOperator, Operator, OperatorSession,Member, Roles
-from blustorymicroservices.BluStoryOperators.models.dtos.Organisation import Organisation
-from blustorymicroservices.BluStoryOperators.models.exceptions.operators import UserSignupAlreadyExistsException
-from blustorymicroservices.BluStoryOperators.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
-from blustorymicroservices.BluStoryOperators.models.responses.api.operators.ResetOperatorPasswordResponse import ResetOperatorPasswordResponse
-from blustorymicroservices.BluStoryOperators.settings.config import \
+from blustorymicroservices.BluStoryAccounts.models.dtos.Organisation import Organisation
+from blustorymicroservices.BluStoryAccounts.models.exceptions.operators import UserSignupAlreadyExistsException
+from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.ResetOperatorPasswordResponse import ResetOperatorPasswordResponse
+from blustorymicroservices.BluStoryAccounts.settings.config import \
     get_settings
-from blustorymicroservices.BluStoryOperators.settings.Settings import \
+from blustorymicroservices.BluStoryAccounts.settings.Settings import \
     Settings
-from blustorymicroservices.BluStoryOperators.models.responses import SupabaseUserResponse
+from blustorymicroservices.BluStoryAccounts.models.responses import SupabaseUserResponse
 from supabase import Client, create_client
-from blustorymicroservices.BluStoryOperators.models.responses.api.operators.OperatorResponse import OperatorResponse
-from blustorymicroservices.BluStoryOperators.models.exceptions.members import UserAlreadyExistsException
+from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.OperatorResponse import OperatorResponse
+from blustorymicroservices.BluStoryAccounts.models.exceptions.members import UserAlreadyExistsException
 from gotrue.errors import AuthApiError
 class OperatorsRepository:
     def __init__(self, client: Client):

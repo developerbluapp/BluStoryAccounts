@@ -1,14 +1,14 @@
 from uuid import UUID
 
-from blustorymicroservices.BluStoryOperators.models.dtos import \
+from blustorymicroservices.BluStoryAccounts.models.dtos import \
     Operator, Member
-from blustorymicroservices.BluStoryOperators.models.exceptions.members import MemberNotFoundException
-from blustorymicroservices.BluStoryOperators.models.responses.api.members.CreatedMemberResponse import CreatedMemberResponse
-from blustorymicroservices.BluStoryOperators.models.responses.api.members.MemberGenerateDeepLinkResponse import MemberGenerateDeepLinkResponse
-from blustorymicroservices.BluStoryOperators.repository import \
+from blustorymicroservices.BluStoryAccounts.models.exceptions.members import MemberNotFoundException
+from blustorymicroservices.BluStoryAccounts.models.responses.api.members.CreatedMemberResponse import CreatedMemberResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.members.MemberGenerateDeepLinkResponse import MemberGenerateDeepLinkResponse
+from blustorymicroservices.BluStoryAccounts.repository import \
     OperatorsRepository, MembersRepository
 
-from blustorymicroservices.BluStoryOperators.settings.config import get_settings
+from blustorymicroservices.BluStoryAccounts.settings.config import get_settings
 
 class MemberService:
     def __init__(self, member_repo: MembersRepository, operator_repo: OperatorsRepository):

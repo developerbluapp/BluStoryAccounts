@@ -3,16 +3,16 @@ import secrets
 import string
 from uuid import UUID
 
-from blustorymicroservices.BluStoryOperators.clients.api.OrganisationClient import OrganisationClient
-from blustorymicroservices.BluStoryOperators.helpers.OrganisationHelper import OrganisationHelper
-from blustorymicroservices.BluStoryOperators.models.dtos import \
+from blustorymicroservices.BluStoryAccounts.clients.api.OrganisationClient import OrganisationClient
+from blustorymicroservices.BluStoryAccounts.helpers.OrganisationHelper import OrganisationHelper
+from blustorymicroservices.BluStoryAccounts.models.dtos import \
     Operator, Member
-from blustorymicroservices.BluStoryOperators.models.responses.api.operators.ResetOperatorPasswordResponse import ResetOperatorPasswordResponse
-from blustorymicroservices.BluStoryOperators.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
-from blustorymicroservices.BluStoryOperators.repository import \
+from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.ResetOperatorPasswordResponse import ResetOperatorPasswordResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
+from blustorymicroservices.BluStoryAccounts.repository import \
     OperatorsRepository, MembersRepository
-from blustorymicroservices.BluStoryOperators.settings.config import get_settings
-from blustorymicroservices.BluStoryOperators.helpers.AuthHelper import AuthHelper
+from blustorymicroservices.BluStoryAccounts.settings.config import get_settings
+from blustorymicroservices.BluStoryAccounts.helpers.AuthHelper import AuthHelper
 
 class OperatorService:
     def __init__(self, operator_repo: OperatorsRepository, member_repo: MembersRepository, organisation_client: OrganisationClient):

@@ -4,15 +4,15 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, HTTPException,Request
 
-from blustorymicroservices.BluStoryOperators.dependencies.services import get_member_auth_service
-from blustorymicroservices.BluStoryOperators.models.dtos.MemberDeepLink import MemberDeepLink
-from blustorymicroservices.BluStoryOperators.models.requests import PinLoginRequest
-from blustorymicroservices.BluStoryOperators.models.responses.api.members.MemberDeepLinkResponse import MemberDeepLinkResponse
+from blustorymicroservices.BluStoryAccounts.dependencies.services import get_member_auth_service
+from blustorymicroservices.BluStoryAccounts.models.dtos.MemberDeepLink import MemberDeepLink
+from blustorymicroservices.BluStoryAccounts.models.requests import PinLoginRequest
+from blustorymicroservices.BluStoryAccounts.models.responses.api.members.MemberDeepLinkResponse import MemberDeepLinkResponse
 from models.requests import MemberSigninRequest
 from models.responses import CreatedMemberResponse
 from services import MemberAuthService
-from blustorymicroservices.BluStoryOperators.models.responses.api.members.MemberSessionResponse import MemberSessionResponse
-from blustorymicroservices.BluStoryOperators.models.responses.api.members.MemberResponse import MemberResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.members.MemberSessionResponse import MemberSessionResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.members.MemberResponse import MemberResponse
 MemberAuthServiceDEP = Annotated[MemberAuthService, Depends(get_member_auth_service)]
 
 router = APIRouter(prefix="/auth/member", tags=["auth-member"])

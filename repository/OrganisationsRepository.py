@@ -4,19 +4,19 @@ from uuid import UUID,uuid4
 
 from fastapi import HTTPException
 
-from blustorymicroservices.BluStoryOperators.models.auth import UserRoles
-from blustorymicroservices.BluStoryOperators.models.dtos import \
+from blustorymicroservices.BluStoryAccounts.models.auth import UserRoles
+from blustorymicroservices.BluStoryAccounts.models.dtos import \
     AuthOrganisation, Organisation, OrganisationSession,Member, Roles,Organisation
-from blustorymicroservices.BluStoryOperators.models.exceptions.organisations import UserSignupAlreadyExistsException
-from blustorymicroservices.BluStoryOperators.models.responses.api.organisations.CreateOrganisationAdminResponse import CreatedOrganisationAdminResponse
-from blustorymicroservices.BluStoryOperators.settings.config import \
+from blustorymicroservices.BluStoryAccounts.models.exceptions.organisations import UserSignupAlreadyExistsException
+from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.CreateOrganisationAdminResponse import CreatedOrganisationAdminResponse
+from blustorymicroservices.BluStoryAccounts.settings.config import \
     get_settings
-from blustorymicroservices.BluStoryOperators.settings.Settings import \
+from blustorymicroservices.BluStoryAccounts.settings.Settings import \
     Settings
-from blustorymicroservices.BluStoryOperators.models.responses import SupabaseUserResponse
+from blustorymicroservices.BluStoryAccounts.models.responses import SupabaseUserResponse
 from supabase import Client, create_client
-from blustorymicroservices.BluStoryOperators.models.responses.api.organisations.OrganisationResponse import OrganisationResponse
-from blustorymicroservices.BluStoryOperators.models.exceptions.members import UserAlreadyExistsException
+from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.OrganisationResponse import OrganisationResponse
+from blustorymicroservices.BluStoryAccounts.models.exceptions.members import UserAlreadyExistsException
 from gotrue.errors import AuthApiError
 
 class OrganisationsRepository:
@@ -215,14 +215,14 @@ class OrganisationsRepository:
                 "password": password,
                 "email_confirm": True,
                 "user_metadata": {"avatar_url": "https://picsum.photos/id/237/200/300"},
-                "app_metadata": {"roles": roles.model_dump()["roles"]}
+                "app_metadata": {"organisation_id": organisation_id,"roles": roles.model_dump()["roles"]}
             })
 
             # 3️⃣ Assign organisation_admin role to this user
             self._client.table("user_roles").insert({
                 "user_id": response.user.id,
                 "role_id": role_response.data["id"],
-                "organisation_id": organisation_id
+                "organisation_id": str(organisation_id)
             }).execute()
             
 
