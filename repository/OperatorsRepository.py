@@ -22,8 +22,9 @@ from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.Opera
 from blustorymicroservices.BluStoryAccounts.models.exceptions.members import UserAlreadyExistsException
 from gotrue.errors import AuthApiError
 class OperatorsRepository:
-    def __init__(self, client: Client):
-        self._client = client
+    def __init__(self, auth_client: Client,db_client : Client):
+        self._db_client =  db_client 
+        self._auth_client = auth_client
 
 
     def _map_supabase_auth_user_to_operator(self, user: SupabaseUserResponse, username: str) -> Operator:
@@ -63,11 +64,11 @@ class OperatorsRepository:
         
         try:
   
-            role_response = self._client.table("roles").select("*").eq("name", UserRoles.OPERATOR).maybe_single().execute()
+            role_response = self._db_client.table("roles").select("*").eq("name", UserRoles.OPERATOR).maybe_single().execute()
             
 
             roles = Roles(roles=[role_response.data["name"]])
-            response = self._client.auth.admin.create_user({
+            response = self._auth_client.auth.admin.create_user({
                 "email": fake_email,
                 "password": password,
                 "email_confirm": True,
@@ -75,12 +76,12 @@ class OperatorsRepository:
                 "app_metadata": {"roles": roles.model_dump()["roles"],
                                 "organisation_id": str(organisation_id) } 
             })
-            self._client.table("operators").insert({
+            self._db_client.table("operators").insert({
             "id": str(response.user.id),
             "username": username,
             "organisation_id": str(organisation_id)
             }).execute()
-            self._client.table("user_roles").insert({
+            self._db_client.table("user_roles").insert({
                 "user_id": response.user.id,
                 "role_id": role_response.data["id"],
                 "organisation_id": str(organisation_id)
@@ -104,21 +105,21 @@ class OperatorsRepository:
     
     def signin_operator(self, auth_operator_dto: AuthOperator) -> OperatorSession:
         try:
-            operators_response = self._client.table("operators").select("id").eq("username", auth_operator_dto.username).maybe_single().execute()
+            operators_response = self._db_client.table("operators").select("id").eq("username", auth_operator_dto.username).maybe_single().execute()
             if not operators_response:
                 raise HTTPException(status_code=404, detail="Operator not found.")
             operator_id = operators_response.data["id"]
-            user_response = self._client.auth.admin.get_user_by_id(operator_id)
+            user_response = self._auth_client.auth.admin.get_user_by_id(operator_id)
             email = user_response.user.email
             
-            session_response = self._client.auth.sign_in_with_password({
+            session_response = self._auth_client.auth.sign_in_with_password({
                 "email": email,
                 "password": auth_operator_dto.password
             })
 
             if "error" in session_response and session_response["error"]:
                 raise HTTPException(status_code=400, detail=session_response["error"]["message"])
-            user_response = self._client.auth.get_user(session_response.session.access_token)
+            user_response = self._auth_client.auth.get_user(session_response.session.access_token)
             operator = self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**user_response.user.model_dump()),username=auth_operator_dto.username)
             return OperatorSession(
                 operator=operator,
@@ -127,19 +128,19 @@ class OperatorsRepository:
         except AuthApiError as e:
             raise HTTPException(status_code=400, detail=str(e))
     def get_operator_by_id(self, operator_id: UUID) -> Operator | None:
-        response = self._client.auth.admin.get_user_by_id(str(operator_id))
+        response = self._auth_client.auth.admin.get_user_by_id(str(operator_id))
         if not response.user:
             return None
-        operators_response = self._client.table("operators").select("username").eq("id", operator_id).maybe_single().execute()
+        operators_response = self._db_client.table("operators").select("username").eq("id", operator_id).maybe_single().execute()
         username = operators_response.data["username"]
         
         return self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**response.user.model_dump()),username=username)
     def get_operators_by_organisation(self, organisation_id: UUID) -> list[Operator]:
-        operators_response = self._client.table("operators").select("*").eq("organisation_id", str(organisation_id)).execute()
+        operators_response = self._db_client.table("operators").select("*").eq("organisation_id", str(organisation_id)).execute()
         operators = []
         print(operators_response.data,"operators response data in repo",organisation_id)
         for operator_record in operators_response.data:
-            user_response = self._client.auth.admin.get_user_by_id(operator_record["id"])
+            user_response = self._auth_client.auth.admin.get_user_by_id(operator_record["id"])
             if user_response.user:
                 username = operator_record["username"]
                 operator = self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**user_response.user.model_dump()),username=username)
@@ -147,10 +148,10 @@ class OperatorsRepository:
         return operators
     def reset_password(self, organisation_id: UUID, operator_id: UUID, new_password: str) -> ResetOperatorPasswordResponse:
         # Reset password using the user's ID
-        operators_response = self._client.table("operators").select("*").eq("organisation_id", str(organisation_id)).eq("id", str(operator_id)).maybe_single().execute()
+        operators_response = self._db_client.table("operators").select("*").eq("organisation_id", str(organisation_id)).eq("id", str(operator_id)).maybe_single().execute()
         if not operators_response:
             raise HTTPException(status_code=404, detail="Operator not found or not apart of this organisation.")
-        response = self._client.auth.admin.update_user_by_id(
+        response = self._auth_client.auth.admin.update_user_by_id(
             uid=str(operator_id),
             attributes={"password": new_password}
         )

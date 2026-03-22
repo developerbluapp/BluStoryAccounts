@@ -26,16 +26,17 @@ import secrets
 import uuid
 import bcrypt
 class MembersRepository:
-    def __init__(self, client: Client):
-        self._client = client
+    def __init__(self, auth_client : Client,db_client :Client):
+        self._db_client = db_client
+        self._auth_client = auth_client
      
 
     def _build_member_email(self, username: str,operator_id:str,organisation_id:str) -> str:
         # TODO You would want a request from the routes and get the data but couldn't be bothered.
-        operator_response = self._client.table("operators").select("username").eq("id", str(operator_id)).maybe_single().execute()
+        operator_response = self._db_client.table("operators").select("username").eq("id", str(operator_id)).maybe_single().execute()
         if not operator_response:
             raise HTTPException(status_code=404, detail="Operator does not exist.")
-        organisation_response = self._client.table("organisations").select("name").eq("id", str(organisation_id)).maybe_single().execute()
+        organisation_response = self._db_client.table("organisations").select("name").eq("id", str(organisation_id)).maybe_single().execute()
         if not organisation_response:
             raise HTTPException(status_code=404, detail="Organisation does not exist.")
         operator_username = operator_response.data["username"]
@@ -50,7 +51,7 @@ class MembersRepository:
     def generate_setup_link(self, username: str,operator_id:UUID,organisation_id: UUID) -> str:
         settings = get_settings()
         fake_email = self._build_member_email(username,operator_id,organisation_id)
-        link_response = self._client.auth.admin.generate_link({
+        link_response = self._auth_client.auth.admin.generate_link({
             "type": "magiclink",
             "email": fake_email,
             "options": {
@@ -65,7 +66,7 @@ class MembersRepository:
         try:
 
 
-            role_response = self._client.table("roles").select("*").eq("name", UserRoles.STUDENT).maybe_single().execute()
+            role_response = self._db_client.table("roles").select("*").eq("name", UserRoles.STUDENT).maybe_single().execute()
             if not role_response:
                 raise HTTPException(status_code=404, detail="Role does not exist.")
 
@@ -73,7 +74,7 @@ class MembersRepository:
             fake_email = self._build_member_email(username,operator_id,organisation_id)
             password = AuthHelper.create_random_password()
             roles = Roles(roles=[role_response.data["name"]])
-            response = self._client.auth.admin.create_user({
+            response = self._auth_client.auth.admin.create_user({
                 "email": fake_email,
                 "password": password,
                 "email_confirm": True,
@@ -82,14 +83,14 @@ class MembersRepository:
                                 "operator_id": operator_id,
                                 "organisation_id":str(organisation_id) } 
             })
-            self._client.table("members").insert({
+            self._db_client.table("members").insert({
             "id": str(response.user.id),
             "username": username,
             "first_name":first_name,
             "operator_id": str(operator_id),
             "organisation_id":str(organisation_id)
             }).execute()
-            self._client.table("user_roles").insert({
+            self._db_client.table("user_roles").insert({
                 "user_id": response.user.id,
                 "role_id": role_response.data["id"],
                 "organisation_id":str(organisation_id)
@@ -109,7 +110,7 @@ class MembersRepository:
             else:
                 raise
     def get_members_by_operator(self, operator_id: UUID) -> list[Member]:
-        response = self._client.table("members")\
+        response = self._db_client.table("members")\
             .select("*")\
             .eq("operator_id", str(operator_id))\
             .execute()
@@ -119,7 +120,7 @@ class MembersRepository:
         return [Member(**s) for s in response.data]
 
     def get_member_by_id(self, operator_id: UUID, member_id: UUID) -> Member | None:
-        response = self._client.table("members")\
+        response = self._db_client.table("members")\
             .select("*")\
             .eq("operator_id", str(operator_id))\
             .eq("id", str(member_id))\
@@ -134,8 +135,8 @@ class MembersRepository:
         member = self.get_member_by_id(operator_id,member_id)
         if not member:
             return None
-        self._client.auth.admin.delete_user(member.id)
-        self._client.table("members").delete().eq("id", str(member.id)).execute()
+        self._auth_client.auth.admin.delete_user(member.id)
+        self._db_client.table("members").delete().eq("id", str(member.id)).execute()
         return member  # return what was deleted so caller can confirm
     def update_member_by_id(self, operator_id: UUID, member_id: UUID,update_data:UpdateMember) -> Member | None:
         member = self.get_member_by_id(operator_id, member_id)
@@ -143,7 +144,7 @@ class MembersRepository:
             return None
         update_dict = update_data.model_dump(exclude_none=True)
        
-        self._client.table("members") \
+        self._db_client.table("members") \
             .update(update_dict) \
             .eq("operator_id", str(operator_id)) \
             .eq("id", str(member.id)) \
@@ -154,13 +155,13 @@ class MembersRepository:
 
     def signin_member(self, auth_member_dto: AuthMember) -> MemberSession:
         try:
-            session_response = self._client.auth.sign_in_with_password({
+            session_response = self._auth_client.auth.sign_in_with_password({
                 "email": f"{auth_member_dto.username}{get_settings().email.suffix}",
                 "password": auth_member_dto.password
             })
             if "error" in session_response and session_response["error"]:
                 raise HTTPException(status_code=400, detail=session_response["error"]["message"])
-            user_response = self._client.auth.get_user(session_response.session.access_token)
+            user_response = self._auth_client.auth.get_user(session_response.session.access_token)
             #member = self._map_supabase_auth_user_to_member(SupabaseUserResponse(**user_response.user.model_dump()))
             #return MemberSession(member=member, session=session_response.session)
         except AuthApiError as e:
@@ -168,7 +169,7 @@ class MembersRepository:
     def reset_member_pin(self, member_id: UUID) -> ResetPinResponse:
         new_pin = self._generate_pin(4)
         pin_hash = bcrypt.hashpw(new_pin.encode(), bcrypt.gensalt()).decode()
-        result = self._client.table("members").update({
+        result = self._db_client.table("members").update({
             "pin_hash": pin_hash
         }).eq("id", str(member_id)).execute()
 
@@ -178,7 +179,7 @@ class MembersRepository:
         return ResetPinResponse(member_id=member_id, pin=new_pin)
     def pin_signin_member(self, member_id: UUID, pin: str) -> MemberDeepLink:
                 # 1. Find member by tablet ID
-        result = self._client.table("members").select(
+        result = self._db_client.table("members").select(
             "id, username, pin_hash"
         ).eq("member_id", member_id).single().execute()
 
@@ -197,7 +198,7 @@ class MembersRepository:
 
         # 3. Generate a magic link session for the member
         email = self._build_member_email(member["username"])
-        link_response = self._client.auth.admin.generate_link({
+        link_response = self._auth_client.auth.admin.generate_link({
             "type": "magiclink",
             "email": email
         })

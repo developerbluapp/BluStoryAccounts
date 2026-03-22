@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Annotated
 from supabase import Client
-from blustorymicroservices.BluStoryAccounts.dependencies.dbclients import get_supabase_client
+from blustorymicroservices.BluStoryAccounts.dependencies.externalclients import get_auth_client
 from blustorymicroservices.BluStoryAccounts.models.auth import AuthenticatedOperator, AuthenticatedMember, UserRoles, AuthenticatedOrganisationAdmin
 
 security = HTTPBearer(scheme_name="Bearer", auto_error=False)
@@ -24,7 +24,7 @@ def get_bearer_token(
 
 async def get_current_organisation_admin(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
-    supabase: Client = Depends(get_supabase_client),
+    supabase: Client = Depends(get_auth_client),
 ) -> AuthenticatedOrganisationAdmin:  # or your User model
     """
     Dependency: extracts & verifies Supabase JWT from Authorization: Bearer <token>
@@ -53,14 +53,6 @@ async def get_current_organisation_admin(
             detail="User does not have the required role.",
         )
 
-    # Optional: you can fetch extra profile data from public.profiles
-    # profile = (
-    #     supabase.table("profiles")
-    #     .select("*")
-    #     .eq("id", user.id)
-    #     .single()
-    #     .execute()
-    # ).data
 
     return AuthenticatedOrganisationAdmin(
         id=user.id,
@@ -72,7 +64,7 @@ async def get_current_organisation_admin(
 
 async def get_current_operator(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
-    supabase: Client = Depends(get_supabase_client),
+    supabase: Client = Depends(get_auth_client),
 ) -> AuthenticatedOperator:  # or your User model
     """
     Dependency: extracts & verifies Supabase JWT from Authorization: Bearer <token>
@@ -119,7 +111,7 @@ async def get_current_operator(
     )
 async def get_current_member(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
-    supabase: Client = Depends(get_supabase_client),
+    supabase: Client = Depends(get_auth_client),
 ) -> AuthenticatedMember:  # or your User model
     """
     Dependency: extracts & verifies Supabase JWT from Authorization: Bearer <token>
@@ -148,14 +140,6 @@ async def get_current_member(
             detail="User does not have the required role.",
         )
 
-    # Optional: you can fetch extra profile data from public.profiles
-    # profile = (
-    #     supabase.table("profiles")
-    #     .select("*")
-    #     .eq("id", user.id)
-    #     .single()
-    #     .execute()
-    # ).data
 
     return AuthenticatedMember(
         id=user.id,

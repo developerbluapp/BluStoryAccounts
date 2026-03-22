@@ -21,8 +21,9 @@ from blustorymicroservices.BluStoryAccounts.models.exceptions.members import Use
 from gotrue.errors import AuthApiError
 
 class OrganisationsRepository:
-    def __init__(self, client: Client):
-        self._client = client
+    def __init__(self, auth_client: Client,db_client :Client):
+        self._db_client =  db_client 
+        self._auth_client = auth_client
 
     def _map_supabase_auth_user_to_organisation(self, user: SupabaseUserResponse, organisation_id:UUID,organisation_name: str) -> OrganisationAdmin:
         return OrganisationAdmin(
@@ -42,20 +43,20 @@ class OrganisationsRepository:
             is_anonymous=user.is_anonymous
         )
     def _get_role_id(self, role_name: str) -> str:
-        role_response = self._client.table("roles").select("id").eq("name", role_name).maybe_single().execute()
+        role_response = self._db_client.table("roles").select("id").eq("name", role_name).maybe_single().execute()
         if not role_response:
             raise HTTPException(status_code=500, detail=f"Role '{role_name}' not found in database")
         else:
             return role_response.data["id"]
     def get_organisation_name_by_id(self, organisation_id: UUID) -> str | None:
-        org_record = self._client.table("organisations").select("name").eq("id", str(organisation_id)).maybe_single().execute()
+        org_record = self._db_client.table("organisations").select("name").eq("id", str(organisation_id)).maybe_single().execute()
         if not org_record:
             return HTTPException(status_code=404, detail="OrganisationAdmin not found")
         return org_record.data["name"]
     def signup_organisation(self, auth_organisation_dto: AuthOrganisation) -> OrganisationSession:
         try:
 
-            org_check = self._client.table("organisations") \
+            org_check = self._db_client.table("organisations") \
                 .select("*") \
                 .eq("name", auth_organisation_dto.organisation_name) \
                 .maybe_single() \
@@ -67,7 +68,7 @@ class OrganisationsRepository:
                 )
 
             # 1️⃣ Get organisation admin role
-            role_response = self._client.table("roles") \
+            role_response = self._db_client.table("roles") \
                 .select("*") \
                 .eq("name", UserRoles.ORGANISATION_ADMIN) \
                 .maybe_single() \
@@ -77,7 +78,7 @@ class OrganisationsRepository:
             organisation_id = str(uuid4())
 
             # 2️⃣ Create the user (organisation admin)
-            response = self._client.auth.admin.create_user({
+            response = self._auth_client.auth.admin.create_user({
                 "email": auth_organisation_dto.email,
                 "password": auth_organisation_dto.password,
                 "email_confirm": True,
@@ -87,20 +88,20 @@ class OrganisationsRepository:
 
             
 
-            self._client.table("organisations").insert({
+            self._db_client.table("organisations").insert({
                 "id": organisation_id,
                 "name": auth_organisation_dto.organisation_name
             }).execute()
 
             # 4️⃣ Assign user role scoped to organisation
-            self._client.table("user_roles").insert({
+            self._db_client.table("user_roles").insert({
                 "user_id": response.user.id,
                 "role_id": role_response.data["id"],
                 "organisation_id": organisation_id
             }).execute()
 
             # 5️⃣ Sign in user to get session
-            session_response = self._client.auth.sign_in_with_password({
+            session_response = self._auth_client.auth.sign_in_with_password({
                 "email": auth_organisation_dto.email,
                 "password": auth_organisation_dto.password
             })
@@ -128,7 +129,7 @@ class OrganisationsRepository:
         try:
             role_id =  self._get_role_id(UserRoles.ORGANISATION_ADMIN)
             # 1️⃣ Sign in user
-            session_response = self._client.auth.sign_in_with_password({
+            session_response = self._auth_client.auth.sign_in_with_password({
                 "email": auth_organisation_dto.email,
                 "password": auth_organisation_dto.password
             })
@@ -140,9 +141,9 @@ class OrganisationsRepository:
                 )
             
             # 2️⃣ Fetch user info
-            user_response = self._client.auth.get_user(session_response.session.access_token)
+            user_response = self._auth_client.auth.get_user(session_response.session.access_token)
             # 3️⃣ Get the user's organisation(s) from user_roles
-            user_roles_resp = self._client.table("user_roles") \
+            user_roles_resp = self._db_client.table("user_roles") \
                 .select("organisation_id") \
                 .eq("user_id", str(user_response.user.id)) \
                 .eq("role_id",str(role_id)) \
@@ -158,7 +159,7 @@ class OrganisationsRepository:
             
             organisation_id = user_roles_resp.data["organisation_id"]
 
-            org_record = self._client.table("organisations") \
+            org_record = self._db_client.table("organisations") \
                 .select("name") \
                 .eq("id", organisation_id) \
                 .maybe_single() \
@@ -192,7 +193,7 @@ class OrganisationsRepository:
     def create_and_assign_organisation_admin(self, email:str,password:str, organisation_name: str) -> CreatedOrganisationAdminResponse:
         try:
             # 0️⃣ Find the existing organisation
-            org = self._client.table("organisations") \
+            org = self._db_client.table("organisations") \
                 .select("*") \
                 .eq("name", organisation_name) \
                 .maybe_single() \
@@ -207,7 +208,7 @@ class OrganisationsRepository:
             organisation_id = org.data["id"]
             
             # 1️⃣ Get organisation admin role
-            role_response = self._client.table("roles") \
+            role_response = self._db_client.table("roles") \
                 .select("*") \
                 .eq("name", UserRoles.ORGANISATION_ADMIN) \
                 .maybe_single() \
@@ -216,7 +217,7 @@ class OrganisationsRepository:
             roles = Roles(roles=[role_response.data["name"]])
 
             # 2️⃣ Create new admin user
-            response = self._client.auth.admin.create_user({
+            response = self._auth_client.auth.admin.create_user({
                 "email": email,
                 "password": password,
                 "email_confirm": True,
@@ -225,7 +226,7 @@ class OrganisationsRepository:
             })
 
             # 3️⃣ Assign organisation_admin role to this user
-            self._client.table("user_roles").insert({
+            self._db_client.table("user_roles").insert({
                 "user_id": response.user.id,
                 "role_id": role_response.data["id"],
                 "organisation_id": str(organisation_id)

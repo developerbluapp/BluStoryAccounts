@@ -17,15 +17,5 @@ To build to prod:
 ./build_app.sh --prod
 ```
 
-## Regression Testing
-1. To allow for regression testing 
-
-```
-nvm use v20.20.0
-```
-```
- npm install supabase --save-dev
- ```
- ```
-npx supabase init
-   ```
+# Decoupling from Supabase
+https://chatgpt.com/c/69c0215c-bf50-8325-9cb5-4eae086894f7
