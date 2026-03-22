@@ -9,3 +9,4 @@ from .Roles import Roles
 from .Organisation import Organisation
 from .AuthOrganisation import AuthOrganisation
 from .OrganisationSession import OrganisationSession
+from .UpdateMember import UpdateMember

@@ -11,6 +11,7 @@ from blustorymicroservices.BluStoryAccounts.models.auth import UserRoles
 from blustorymicroservices.BluStoryAccounts.models.dtos import \
     AuthOperator, AuthMember, Operator, OperatorSession,Member, MemberSession, Roles, Roles
 from blustorymicroservices.BluStoryAccounts.models.dtos.MemberDeepLink import MemberDeepLink
+from blustorymicroservices.BluStoryAccounts.models.dtos.UpdateMember import UpdateMember
 from blustorymicroservices.BluStoryAccounts.models.exceptions.operators import UserSignupAlreadyExistsException
 from blustorymicroservices.BluStoryAccounts.models.responses.api.members import ResetPinResponse
 from blustorymicroservices.BluStoryAccounts.settings.config import \
@@ -49,7 +50,6 @@ class MembersRepository:
     def generate_setup_link(self, username: str,operator_id:UUID,organisation_id: UUID) -> str:
         settings = get_settings()
         fake_email = self._build_member_email(username,operator_id,organisation_id)
-        print(f"settings.deeplink.url: {settings.deeplink.url}")
         link_response = self._client.auth.admin.generate_link({
             "type": "magiclink",
             "email": fake_email,
@@ -137,12 +137,21 @@ class MembersRepository:
         self._client.auth.admin.delete_user(member.id)
         self._client.table("members").delete().eq("id", str(member.id)).execute()
         return member  # return what was deleted so caller can confirm
-    def update_member_by_id(self, operator_id: UUID, member_id: UUID, new_username: str) -> Member | None:
+    def update_member_by_id(self, operator_id: UUID, member_id: UUID,update_data:UpdateMember) -> Member | None:
         member = self.get_member_by_id(operator_id, member_id)
         if not member:
             return None
-        self._client.table("members").update({"username": new_username}).eq("operator_id", str(operator_id)).eq("id", str(member.id)).execute()
-        return Member(id=member.id, username=new_username, first_name=member.first_name)  # return updated member
+        update_dict = update_data.model_dump(exclude_none=True)
+       
+        self._client.table("members") \
+            .update(update_dict) \
+            .eq("operator_id", str(operator_id)) \
+            .eq("id", str(member.id)) \
+            .execute()
+
+        # optionally re-fetch updated member
+        return self.get_member_by_id(operator_id, member_id)
+
     def signin_member(self, auth_member_dto: AuthMember) -> MemberSession:
         try:
             session_response = self._client.auth.sign_in_with_password({

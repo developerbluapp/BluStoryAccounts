@@ -28,6 +28,11 @@ case "$MODE" in
 
     docker compose -f docker-compose.local.yml up web
     ;;
+  --test)
+   echo "🔧 Running Tests..."
+   docker compose -f docker-compose.local.yml build test && docker compose -f docker-compose.local.yml run --rm test
+   ;;
+
 
   --prod)
     echo "🚀 Building PRODUCTION environment..."

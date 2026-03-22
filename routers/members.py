@@ -6,6 +6,7 @@ from fastapi import Query, Request
 from blustorymicroservices.BluStoryAccounts.models.auth.AuthenticatedOperator import AuthenticatedOperator
 from blustorymicroservices.BluStoryAccounts.models.auth.AuthenticatedMember import AuthenticatedMember
 from blustorymicroservices.BluStoryAccounts.models.dtos import AuthMember
+from blustorymicroservices.BluStoryAccounts.models.dtos.UpdateMember import UpdateMember
 from blustorymicroservices.BluStoryAccounts.models.exceptions.base import AppException
 from fastapi import APIRouter, Depends
 
@@ -13,10 +14,10 @@ from blustorymicroservices.BluStoryAccounts.models.requests.GenerateDeepLinkRequ
 from blustorymicroservices.BluStoryAccounts.models.requests.ResetPinRequest import ResetPinRequest
 from blustorymicroservices.BluStoryAccounts.models.responses.api.members.ResetPinResponse import ResetPinResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.members.MemberGenerateDeepLinkResponse import MemberGenerateDeepLinkResponse
-from dependencies import get_member_service, get_current_operator,get_current_member
-from models.requests import CreateUserRequest, UpdateMemberRequest
-from models.responses import CreatedMemberResponse, MemberResponse,DeletedMemberResponse, PatchedMemberResponse
-from services import MemberService
+from blustorymicroservices.BluStoryAccounts.dependencies import get_member_service, get_current_operator,get_current_member
+from blustorymicroservices.BluStoryAccounts.models.requests import CreateUserRequest, UpdateMemberRequest
+from blustorymicroservices.BluStoryAccounts.models.responses import CreatedMemberResponse, MemberResponse,DeletedMemberResponse, PatchedMemberResponse
+from blustorymicroservices.BluStoryAccounts.services import MemberService
 from blustorymicroservices.BluStoryAccounts.models.responses.api.members.MemberSessionResponse import MemberSessionResponse
 from fastapi import HTTPException
 import bcrypt
@@ -125,20 +126,28 @@ def delete_member(
     )
 
 @router.patch("/{member_id}")
-def update_member(
+def update_username(
     member_id: UUID,
     body: UpdateMemberRequest,
     member_service: MemberServiceDEP,
     current_operator: AuthOperatorDEP,
 ):
     operator_id = current_operator.id
+    update_data = UpdateMember()
 
-    updated_member = member_service.update_member_by_id(
-        operator_id,
-        member_id,
-        body.username,
-    )
+    if body.username is not None:
+        update_data.username = body.username
 
+    if body.first_name is not None:
+        update_data.first_name = body.first_name
+
+
+    if body.username is not None or body.first_name is not None:
+        updated_member = member_service.update_member_by_id(
+            operator_id,
+            member_id,
+            body
+        )
     return PatchedMemberResponse(
         id=updated_member.id,
         username=updated_member.username,

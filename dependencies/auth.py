@@ -109,7 +109,7 @@ async def get_current_operator(
     #     .single()
     #     .execute()
     # ).data
-    print("Hello",user.id,user.email,roles,user.aud,user.app_metadata.get("organisation_id"))
+
     return AuthenticatedOperator(
         id=user.id,
         organisation_id=user.app_metadata.get("organisation_id"),

@@ -8,9 +8,9 @@ from blustorymicroservices.BluStoryAccounts.dependencies.services import get_mem
 from blustorymicroservices.BluStoryAccounts.models.dtos.MemberDeepLink import MemberDeepLink
 from blustorymicroservices.BluStoryAccounts.models.requests import PinLoginRequest
 from blustorymicroservices.BluStoryAccounts.models.responses.api.members.MemberDeepLinkResponse import MemberDeepLinkResponse
-from models.requests import MemberSigninRequest
-from models.responses import CreatedMemberResponse
-from services import MemberAuthService
+from blustorymicroservices.BluStoryAccounts.models.requests import MemberSigninRequest
+from blustorymicroservices.BluStoryAccounts.models.responses import CreatedMemberResponse
+from blustorymicroservices.BluStoryAccounts.services import MemberAuthService
 from blustorymicroservices.BluStoryAccounts.models.responses.api.members.MemberSessionResponse import MemberSessionResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.members.MemberResponse import MemberResponse
 MemberAuthServiceDEP = Annotated[MemberAuthService, Depends(get_member_auth_service)]

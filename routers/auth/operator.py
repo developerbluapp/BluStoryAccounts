@@ -8,9 +8,9 @@ from fastapi import APIRouter, Depends, HTTPException, HTTPException
 
 from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.OperatorSessionReponse import OperatorSessionResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.OperatorResponse import OperatorResponse
-from dependencies import get_operator_auth_service
-from models.requests import OperatorSignupRequest, OperatorSigninRequest
-from services import OperatorAuthService
+from blustorymicroservices.BluStoryAccounts.dependencies import get_operator_auth_service
+from blustorymicroservices.BluStoryAccounts.models.requests import OperatorSignupRequest, OperatorSigninRequest
+from blustorymicroservices.BluStoryAccounts.services import OperatorAuthService
 OperatorAuthServiceDEP = Annotated[OperatorAuthService, Depends(get_operator_auth_service)]
 
 router = APIRouter(prefix="/auth/operator", tags=["auth-operator"])

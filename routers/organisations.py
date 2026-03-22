@@ -16,8 +16,8 @@ from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.Opera
 from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.OrganisationNameResponse import OrganisationNameResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.OrganisationResponse import OrganisationResponse
 from blustorymicroservices.BluStoryAccounts.services import OperatorService, OrganisationService
-from dependencies import get_current_operator
-from services import OperatorService
+from blustorymicroservices.BluStoryAccounts.dependencies import get_current_operator
+from blustorymicroservices.BluStoryAccounts.services import OperatorService
 
 OperatorServiceDEP = Annotated[OperatorService, Depends(get_operator_service)]
 AuthenticatedOrganisationAdminDEP = Annotated[AuthenticatedOrganisationAdmin, Depends(get_current_organisation_admin)]

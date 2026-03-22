@@ -23,9 +23,10 @@ class OrganisationsRepository:
     def __init__(self, client: Client):
         self._client = client
 
-    def _map_supabase_auth_user_to_organisation(self, user: SupabaseUserResponse, organisation_name: str) -> Organisation:
+    def _map_supabase_auth_user_to_organisation(self, user: SupabaseUserResponse, organisation_id:UUID,organisation_name: str) -> Organisation:
         return Organisation(
             id=user.id,
+            organisation_id=organisation_id,
             organisation_name=organisation_name,
             email=user.email,
             phone=user.phone,
@@ -108,6 +109,7 @@ class OrganisationsRepository:
 
             organisation = self._map_supabase_auth_user_to_organisation(
                 SupabaseUserResponse(**response.user.model_dump())
+                ,organisation_id=organisation_id
                 ,organisation_name=auth_organisation_dto.organisation_name
             )
 
@@ -171,6 +173,7 @@ class OrganisationsRepository:
             # 5️⃣ Map user to Organisation DTO including organisation name
             organisation = self._map_supabase_auth_user_to_organisation(
                 SupabaseUserResponse(**user_response.user.model_dump()),
+                organisation_id=organisation_id,
                 organisation_name=organisation_name
             )
 

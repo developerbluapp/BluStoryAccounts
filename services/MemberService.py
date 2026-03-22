@@ -2,6 +2,7 @@ from uuid import UUID
 
 from blustorymicroservices.BluStoryAccounts.models.dtos import \
     Operator, Member
+from blustorymicroservices.BluStoryAccounts.models.dtos.UpdateMember import UpdateMember
 from blustorymicroservices.BluStoryAccounts.models.exceptions.members import MemberNotFoundException
 from blustorymicroservices.BluStoryAccounts.models.responses.api.members.CreatedMemberResponse import CreatedMemberResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.members.MemberGenerateDeepLinkResponse import MemberGenerateDeepLinkResponse
@@ -24,8 +25,8 @@ class MemberService:
         return self._member_repo.get_members_by_operator(operator_id)
     def delete_member_by_id(self, operator_id: UUID,member_id: UUID) -> Member | None:
         return self._member_repo.delete_member_by_id(operator_id,member_id)
-    def update_member_by_id(self, operator_id: UUID, member_id: UUID, new_username: str) -> Member | None:
-        return self._member_repo.update_member_by_id(operator_id, member_id, new_username)
+    def update_member_by_id(self, operator_id: UUID, member_id: UUID,update_data:UpdateMember) -> Member | None:
+        return self._member_repo.update_member_by_id(operator_id, member_id, update_data)
     def reset_member_pin(self, member_id: UUID) -> None:
         new_pin = self._member_repo.reset_member_pin(member_id)
         return new_pin
