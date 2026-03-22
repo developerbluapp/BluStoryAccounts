@@ -35,7 +35,6 @@ def get_organisation_name(
     current_organisation_admin: AuthenticatedOrganisationAdminDEP,
 ):
     current_organisation_id = current_organisation_admin.organisation_id
-    print(current_organisation_id,"current organisation id in router",organisation_id)
     if current_organisation_id != organisation_id:
         raise AppException(
             code="forbidden",
@@ -45,7 +44,7 @@ def get_organisation_name(
 
 
     organisation_name = organisation_service.get_organisation_name_by_id(organisation_id)
-    print(organisation_name,"organisation name in router")
+
 
     if not organisation_name:
         raise AppException(

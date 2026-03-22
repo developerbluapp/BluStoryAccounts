@@ -141,10 +141,8 @@ class OrganisationsRepository:
             email=auth_organisation_dto.email,
             password=auth_organisation_dto.password,
         )
-        print(session)
 
         user_data = self._auth_client.get_user_by_token(session.session.access_token)
-        print("Userdo",user_data)
 
         organisation = self._map_auth_user_to_organisation(
             SupabaseUserResponse(**user_data.user.model_dump()),
@@ -205,7 +203,7 @@ class OrganisationsRepository:
                 detail="Organisation not found for user",
             )
         
-        print(user_data)
+ 
 
         organisation = self._map_auth_user_to_organisation(
             SupabaseUserResponse(**user_data.model_dump()),

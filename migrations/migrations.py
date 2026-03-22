@@ -24,6 +24,7 @@ def run_migrations():
 
         # 2. The Universal SQL Script
         migration_sql = """
+        CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
         -- =========================================
         -- 1. SUPABASE COMPATIBILITY LAYER
         -- =========================================

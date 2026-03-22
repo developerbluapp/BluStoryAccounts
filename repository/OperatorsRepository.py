@@ -148,7 +148,7 @@ class OperatorsRepository:
 
     def get_operator_by_id(self, operator_id: UUID) -> Operator | None:
         user = self._auth_client.get_user_by_id(str(operator_id))
-        print("HELO",user)
+    
         if not user:
             return None
 

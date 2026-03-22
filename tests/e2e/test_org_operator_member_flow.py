@@ -149,10 +149,10 @@ def test_org_operator_member_flow(supabase, mock_auth):
     assert admin_get_op_resp.status_code == 200
     
     # Final Cleanup
-    CleanUpDatabase.cleanup_test_data(
-        supabase, 
-        member_id, 
-        operator_id, 
-        organisation_admin_id, 
-        organisation_id
-    )
+    #CleanUpDatabase.cleanup_test_data(
+    #    supabase, 
+    #    member_id, 
+    #    operator_id, 
+    #    organisation_admin_id, 
+    #    organisation_id
+    #)

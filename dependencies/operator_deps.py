@@ -31,7 +31,7 @@ def get_operator_in_organisation(
             message="Operator not found",
             status=status.HTTP_404_NOT_FOUND,
         )
-    print(operator.app_metadata.get("organisation_id"),current_org.organisation_id)
+    #print(operator.app_metadata.get("organisation_id"),current_org.organisation_id)
 
     if str(operator.app_metadata.get("organisation_id")) != str(current_org.organisation_id):
         raise AppException(
