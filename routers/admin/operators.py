@@ -3,7 +3,9 @@ from typing import Annotated
 from uuid import UUID
 
 from blustorymicroservices.BluStoryAccounts.dependencies.auth import get_current_operator, get_current_organisation_admin
+from blustorymicroservices.BluStoryAccounts.dependencies.operator_deps import get_operator_in_organisation
 from blustorymicroservices.BluStoryAccounts.models.auth import AuthenticatedOperator,AuthenticatedOrganisationAdmin
+from blustorymicroservices.BluStoryAccounts.models.dtos.Operator import Operator
 from blustorymicroservices.BluStoryAccounts.models.exceptions.base import \
     AppException
 from fastapi import APIRouter, Depends
@@ -55,79 +57,14 @@ def get_operators(
         OperatorResponse(id=s.id, username=s.username, email=s.email)
         for s in operators
     ]
-"""
 
 @router.get("/{operator_id}", response_model=OperatorResponse)
 def get_operator(
-    operator_id: UUID,
-    operator_service: OperatorServiceDEP,
-    current_organisation: AuthenticatedOrganisationAdminDEP,
+    operator: Annotated[Operator, Depends(get_operator_in_organisation)]
 ):
-    organisation_id = current_organisation.id
 
-    operator = operator_service.get_operator_by_id(
-        operator_id,
-        operator_id,
-    )
-
-    if not operator:
-        raise AppException(
-            code="operator_not_found",
-            message="Operator not found",
-            status=404,
-        )
     return OperatorResponse(
         id=operator.id,
-        username=operator.username,
-        first_name=operator.first_name
+        username=operator.username
     )
 
-
-
-@router.delete("/{operator_id}")
-def delete_operator(
-    operator_id: UUID,
-    operator_service: OperatorServiceDEP,
-    current_organisation: AuthenticatedOrganisationAdminDEP,
-):
-    organisation_id = current_organisation.id
-
-    deleted_operator = operator_service.delete_operator_by_id(
-        operator_id,
-        operator_id,
-    )
-    if not deleted_operator:
-        raise AppException(
-            code="operator_not_found",
-            message="Operator not found",
-            status=404,
-        )
-
-    return DeletedOperatorResponse(
-        id=deleted_operator.id,
-        username=deleted_operator.username,
-        message=f"Operator with id {deleted_operator.id} deleted successfully"
-    )
-
-@router.patch("/{operator_id}")
-def update_operator(
-    operator_id: UUID,
-    body: UpdateOperatorRequest,
-    operator_service: OperatorServiceDEP,
-    current_organisation: AuthenticatedOrganisationAdminDEP,
-):
-    organisation_id = current_organisation.id
-
-    updated_operator = operator_service.update_operator_by_id(
-        operator_id,
-        operator_id,
-        body.username,
-    )
-
-    return PatchedOperatorResponse(
-        id=updated_operator.id,
-        username=updated_operator.username,
-        message=f"Operator with id {updated_operator.id} updated successfully"
-        )
-
-"""

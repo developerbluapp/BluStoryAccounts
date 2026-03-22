@@ -4,6 +4,7 @@ from blustorymicroservices.BluStoryAccounts.dependencies.dbclients import get_su
 from blustorymicroservices.BluStoryAccounts.models.responses.api.members.CreatedMemberResponse import CreatedMemberResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.members.MemberResponse import MemberResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.OperatorResponse import OperatorResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.OperatorSessionReponse import OperatorSessionResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.OrganisationSessionResponse import OrganisationSessionResponse
 from blustorymicroservices.BluStoryAccounts.main import app
@@ -53,13 +54,13 @@ def test_org_operator_member_flow():
     )
 
     assert operator_resp.status_code == 201
-    operator_data = CreatedOperatorResponse(**operator_resp.json())
-    operator_id = operator_data.id
+    created_operator_data = CreatedOperatorResponse(**operator_resp.json())
+    operator_id = created_operator_data.id
 
     operator_session_resp = client.post(
         "/auth/operator/signin",
-        json={"username":operator_data.username,
-        "password":operator_data.password
+        json={"username":created_operator_data.username,
+        "password":created_operator_data.password
         }
     )
 
@@ -113,5 +114,20 @@ def test_org_operator_member_flow():
     
     assert single_member.id == member_id
     assert single_member.username == username
+
+    # 
+    # Step 6: Check all records where created then remove
+    #
+
+    operator_resp = client.get(
+        f"/admin/operator/{operator_id}",
+        headers={"Authorization": f"Bearer {org_token}"}
+    )
+    print("test",operator_resp.json())
+    operator_data = OperatorResponse(**operator_resp.json())
+    assert operator_resp.status_code == 200
+    assert operator_data.id == operator_id
+    assert operator_data.username == created_operator_data.id
+
     CleanUpDatabase.cleanup_test_data(supabase,member_id,operator_id,organisation_admin_id,organisation_id)
     
