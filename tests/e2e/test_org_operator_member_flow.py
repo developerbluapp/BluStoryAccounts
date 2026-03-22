@@ -23,7 +23,7 @@ app.dependency_overrides[get_organisation_client] = lambda: MockOrganisationClie
 def test_org_operator_member_flow():
     supabase = get_test_supabase_client()
     # -------------------------
-    # Step 1: Organisation signup
+    # Step 1: OrganisationAdmin signup
     # -------------------------
     org_email = f"org_{uuid.uuid4()}@test.com"
     username = f"member_{uuid.uuid4()}"
@@ -45,7 +45,7 @@ def test_org_operator_member_flow():
     org_token = organisation_session.session.access_token
 
     # -------------------------
-    # Step 2: Organisation creates operator
+    # Step 2: OrganisationAdmin creates operator
     # -------------------------
     operator_resp = client.post(
         "/admin/operator",

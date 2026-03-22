@@ -4,7 +4,7 @@ import string
 from pydantic import EmailStr
 from uuid import UUID
 from blustorymicroservices.BluStoryAccounts.models.dtos import \
-    AuthOrganisation, AuthOrganisation, Organisation, Member
+    AuthOrganisation, AuthOrganisation
 from blustorymicroservices.BluStoryAccounts.models.dtos import OrganisationSession
 from blustorymicroservices.BluStoryAccounts.repository import \
     OrganisationsRepository

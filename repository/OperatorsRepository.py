@@ -8,7 +8,7 @@ from blustorymicroservices.BluStoryAccounts.clients.api.OrganisationClient impor
 from blustorymicroservices.BluStoryAccounts.models.auth import UserRoles
 from blustorymicroservices.BluStoryAccounts.models.dtos import \
     AuthOperator, Operator, OperatorSession,Member, Roles
-from blustorymicroservices.BluStoryAccounts.models.dtos.Organisation import Organisation
+from blustorymicroservices.BluStoryAccounts.models.dtos.OrganisationAdmin import OrganisationAdmin
 from blustorymicroservices.BluStoryAccounts.models.exceptions.operators import UserSignupAlreadyExistsException
 from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.ResetOperatorPasswordResponse import ResetOperatorPasswordResponse
@@ -42,8 +42,8 @@ class OperatorsRepository:
             updated_at=user.updated_at,
             is_anonymous=user.is_anonymous
         )
-    def _map_supabase_auth_user_to_organisation(self, user: SupabaseUserResponse,organisation_name: str) -> Organisation:
-        return Organisation(
+    def _map_supabase_auth_user_to_organisation(self, user: SupabaseUserResponse,organisation_name: str) -> OrganisationAdmin:
+        return OrganisationAdmin(
             id=user.id,
             email=user.email,
             organisation_name=organisation_name,

@@ -1,7 +1,7 @@
 
 from pydantic import BaseModel
 from uuid import UUID
-class OrganisationResponse(BaseModel):
+class OrganisationAdminResponse(BaseModel):
     id: UUID
     email: str
     organisation_id:UUID

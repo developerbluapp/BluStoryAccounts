@@ -1,7 +1,6 @@
 from uuid import UUID
 
-from blustorymicroservices.BluStoryAccounts.models.dtos import \
-    Organisation, Member
+
 from blustorymicroservices.BluStoryAccounts.models.dtos.AuthOrganisation import AuthOrganisation
 from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.CreateOrganisationAdminResponse import CreatedOrganisationAdminResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.OrganisationNameResponse import OrganisationNameResponse

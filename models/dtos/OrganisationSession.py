@@ -1,7 +1,7 @@
 
 from pydantic import BaseModel
 from gotrue.types import Session
-from blustorymicroservices.BluStoryAccounts.models.dtos import Organisation
+from blustorymicroservices.BluStoryAccounts.models.dtos import OrganisationAdmin
 class OrganisationSession(BaseModel):
-    organisation: Organisation
+    organisation: OrganisationAdmin
     session: Session

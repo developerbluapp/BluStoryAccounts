@@ -6,7 +6,8 @@ from fastapi import HTTPException
 
 from blustorymicroservices.BluStoryAccounts.models.auth import UserRoles
 from blustorymicroservices.BluStoryAccounts.models.dtos import \
-    AuthOrganisation, Organisation, OrganisationSession,Member, Roles,Organisation
+    AuthOrganisation, OrganisationAdmin, OrganisationSession,Member, Roles
+from blustorymicroservices.BluStoryAccounts.models.dtos.Organisation import Organisation
 from blustorymicroservices.BluStoryAccounts.models.exceptions.organisations import UserSignupAlreadyExistsException
 from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.CreateOrganisationAdminResponse import CreatedOrganisationAdminResponse
 from blustorymicroservices.BluStoryAccounts.settings.config import \
@@ -15,7 +16,7 @@ from blustorymicroservices.BluStoryAccounts.settings.Settings import \
     Settings
 from blustorymicroservices.BluStoryAccounts.models.responses import SupabaseUserResponse
 from supabase import Client, create_client
-from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.OrganisationResponse import OrganisationResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.OrganisationAdminResponse import OrganisationAdminResponse
 from blustorymicroservices.BluStoryAccounts.models.exceptions.members import UserAlreadyExistsException
 from gotrue.errors import AuthApiError
 
@@ -23,8 +24,8 @@ class OrganisationsRepository:
     def __init__(self, client: Client):
         self._client = client
 
-    def _map_supabase_auth_user_to_organisation(self, user: SupabaseUserResponse, organisation_id:UUID,organisation_name: str) -> Organisation:
-        return Organisation(
+    def _map_supabase_auth_user_to_organisation(self, user: SupabaseUserResponse, organisation_id:UUID,organisation_name: str) -> OrganisationAdmin:
+        return OrganisationAdmin(
             id=user.id,
             organisation_id=organisation_id,
             organisation_name=organisation_name,
@@ -49,7 +50,7 @@ class OrganisationsRepository:
     def get_organisation_name_by_id(self, organisation_id: UUID) -> str | None:
         org_record = self._client.table("organisations").select("name").eq("id", str(organisation_id)).maybe_single().execute()
         if not org_record:
-            return HTTPException(status_code=404, detail="Organisation not found")
+            return HTTPException(status_code=404, detail="OrganisationAdmin not found")
         return org_record.data["name"]
     def signup_organisation(self, auth_organisation_dto: AuthOrganisation) -> OrganisationSession:
         try:
@@ -62,7 +63,7 @@ class OrganisationsRepository:
             if org_check is not None:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Organisation '{auth_organisation_dto.organisation_name}' already exists"
+                    detail=f"OrganisationAdmin '{auth_organisation_dto.organisation_name}' already exists"
                 )
 
             # 1️⃣ Get organisation admin role
@@ -152,7 +153,7 @@ class OrganisationsRepository:
             if not user_roles_resp:
                 raise HTTPException(
                     status_code=400,
-                    detail="Organisation admin role not assigned"
+                    detail="OrganisationAdmin admin role not assigned"
                 )
             
             organisation_id = user_roles_resp.data["organisation_id"]
@@ -165,12 +166,14 @@ class OrganisationsRepository:
             if not org_record:
                 raise HTTPException(
                     status_code=400,
-                    detail="Organisation not found for user"
+                    detail="OrganisationAdmin not found for user"
                 )
+            
 
             organisation_name = org_record.data["name"]
+        
 
-            # 5️⃣ Map user to Organisation DTO including organisation name
+            # 5️⃣ Map user to OrganisationAdmin DTO including organisation name
             organisation = self._map_supabase_auth_user_to_organisation(
                 SupabaseUserResponse(**user_response.user.model_dump()),
                 organisation_id=organisation_id,
@@ -198,7 +201,7 @@ class OrganisationsRepository:
             if not org:
                 raise HTTPException(
                     status_code=404,
-                    detail=f"Organisation '{organisation_name}' not found"
+                    detail=f"OrganisationAdmin '{organisation_name}' not found"
                 )
 
             organisation_id = org.data["id"]

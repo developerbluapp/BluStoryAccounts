@@ -6,7 +6,7 @@ from .AuthMember import AuthMember
 from .MemberSession import MemberSession
 from .MemberDeepLink import MemberDeepLink
 from .Roles import Roles
-from .Organisation import Organisation
+from .OrganisationAdmin import OrganisationAdmin
 from .AuthOrganisation import AuthOrganisation
 from .OrganisationSession import OrganisationSession
 from .UpdateMember import UpdateMember
