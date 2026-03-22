@@ -15,7 +15,7 @@ OperatorServiceDEP = Annotated[OperatorService, Depends(get_operator_service)]
 def get_operator_in_organisation(
     operator_id: UUID,
     current_org: Annotated[AuthenticatedOrganisationAdmin, Depends(get_current_organisation_admin)],
-    operator_service: Annotated[OperatorService, Depends(OperatorServiceDEP)],
+    operator_service: OperatorServiceDEP,
 ) -> Operator:
     """
     Dependency that:
@@ -29,14 +29,15 @@ def get_operator_in_organisation(
         raise AppException(
             code="operator_not_found",
             message="Operator not found",
-            status_code=status.HTTP_404_NOT_FOUND,
+            status=status.HTTP_404_NOT_FOUND,
         )
+    print(operator.app_metadata.get("organisation_id"),current_org.organisation_id)
 
-    if operator.app_metadata.get("organisation_id") != current_org.organisation_id:
+    if str(operator.app_metadata.get("organisation_id")) != str(current_org.organisation_id):
         raise AppException(
             code="forbidden_operator_access",
             message="This operator does not belong to your organisation",
-            status_code=status.HTTP_403_FORBIDDEN,
+            status=status.HTTP_403_FORBIDDEN,
         )
 
     return operator

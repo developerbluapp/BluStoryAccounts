@@ -16,3 +16,16 @@ To build to prod:
 ```
 ./build_app.sh --prod
 ```
+
+## Regression Testing
+1. To allow for regression testing 
+
+```
+nvm use v20.20.0
+```
+```
+ npm install supabase --save-dev
+ ```
+ ```
+npx supabase init
+   ```

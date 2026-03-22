@@ -127,7 +127,7 @@ def test_org_operator_member_flow():
     operator_data = OperatorResponse(**operator_resp.json())
     assert operator_resp.status_code == 200
     assert operator_data.id == operator_id
-    assert operator_data.username == created_operator_data.id
+    assert operator_data.username == created_operator_data.username
 
     CleanUpDatabase.cleanup_test_data(supabase,member_id,operator_id,organisation_admin_id,organisation_id)
     

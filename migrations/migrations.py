@@ -1,166 +1,170 @@
 import os
 import psycopg2
+from psycopg2 import Error
 
 
 def run_migrations():
-    conn = psycopg2.connect(
-        user=os.environ["DB_USER"],
-        password=os.environ["DB_PASSWORD"],
-        host=os.environ["DB_HOST"],
-        port=os.environ["DB_PORT"],
-        dbname=os.environ["DB_NAME"]
-    )
+    try:
+        # Connect to your PostgreSQL database
+        conn = psycopg2.connect(
+            user=os.environ["DB_USER"],
+            password=os.environ["DB_PASSWORD"],
+            host=os.environ["DB_HOST"],
+            port=os.environ["DB_PORT"],
+            dbname=os.environ["DB_NAME"]
+        )
 
-    cur = conn.cursor()
-    print("Running migrations...")
+        conn.autocommit = False  # We'll commit manually at the end
+        cur = conn.cursor()
 
-    cur.execute("""
--- =========================================
--- Enable UUID extension
--- =========================================
-create extension if not exists "uuid-ossp";
+        print("Running migrations...")
 
-
--- =========================================
--- Drop tables (for dev reset)
--- =========================================
-drop table if exists user_roles cascade;
-drop table if exists members cascade;
-drop table if exists operators cascade;
-drop table if exists organisations cascade;
-drop table if exists roles cascade;
+        # ────────────────────────────────────────────────
+        # Complete migration script – pure PostgreSQL
+        # ────────────────────────────────────────────────
+        migration_sql = """
+        -- 1. Enable UUID extension
+        CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 
--- =========================================
--- ROLES
--- =========================================
-create table roles (
-    id uuid primary key,
-    name text not null unique
-);
-
-insert into roles (id, name) values
-(uuid_generate_v5(uuid_nil(), 'member'), 'member'),
-(uuid_generate_v5(uuid_nil(), 'parent'), 'parent'),
-(uuid_generate_v5(uuid_nil(), 'operator'), 'operator'),
-(uuid_generate_v5(uuid_nil(), 'organisation_admin'), 'organisation_admin');
+        -- 2. Drop tables in reverse dependency order (mainly for dev/reset)
+        DROP TABLE IF EXISTS user_roles     CASCADE;
+        DROP TABLE IF EXISTS members        CASCADE;
+        DROP TABLE IF EXISTS operators      CASCADE;
+        DROP TABLE IF EXISTS organisations  CASCADE;
+        DROP TABLE IF EXISTS roles          CASCADE;
 
 
--- =========================================
--- ORGANISATIONS
--- =========================================
-create table organisations (
-    id uuid primary key default uuid_generate_v4(),
-    name text not null,
-    created_at timestamptz default now()
-);
+        -- 3. ROLES (static seed data)
+        CREATE TABLE roles (
+            id   uuid PRIMARY KEY,
+            name text NOT NULL UNIQUE
+        );
+
+        INSERT INTO roles (id, name) VALUES
+            (uuid_generate_v5(uuid_nil(), 'member'),             'member'),
+            (uuid_generate_v5(uuid_nil(), 'parent'),             'parent'),
+            (uuid_generate_v5(uuid_nil(), 'operator'),           'operator'),
+            (uuid_generate_v5(uuid_nil(), 'organisation_admin'), 'organisation_admin')
+        ON CONFLICT (name) DO NOTHING;
 
 
--- =========================================
--- OPERATORS
--- =========================================
-create table operators (
-    id uuid primary key
-        references auth.users(id)
-        on delete cascade,
-    username text not null,
-    organisation_id uuid not null
-        references organisations(id)
-        on delete cascade,
-
-    created_at timestamptz default now(),
-
-    -- required for composite FK from members
-    unique (id, organisation_id)
-);
-
-create index idx_operator_org
-on operators(organisation_id);
+        -- 4. ORGANISATIONS
+        CREATE TABLE organisations (
+            id         uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+            name       text NOT NULL,
+            created_at timestamptz NOT NULL DEFAULT now()
+        );
 
 
--- =========================================
--- MEMBERS
--- =========================================
-create table members (
-    id uuid primary key
-        references auth.users(id)
-        on delete cascade,
+        -- 5. OPERATORS
+        CREATE TABLE operators (
+            id              uuid PRIMARY KEY,
+            username        text NOT NULL,
+            organisation_id uuid NOT NULL,
+            created_at      timestamptz NOT NULL DEFAULT now(),
 
-    operator_id uuid not null,
-    organisation_id uuid not null,
+            CONSTRAINT fk_operator_user
+                FOREIGN KEY (id)
+                REFERENCES auth.users(id)
+                ON DELETE CASCADE,
 
-    username text not null unique,
-    first_name text not null,
-    created_at timestamptz default now(),
+            CONSTRAINT fk_operator_organisation
+                FOREIGN KEY (organisation_id)
+                REFERENCES organisations(id)
+                ON DELETE CASCADE,
 
-    -- enforce same organisation as operator
-    foreign key (operator_id, organisation_id)
-        references operators(id, organisation_id)
-        on delete cascade
-);
+            CONSTRAINT operators_id_organisation_unique
+                UNIQUE (id, organisation_id)
+        );
 
-create index idx_member_operator
-on members(operator_id);
-
-create index idx_member_org
-on members(organisation_id);
+        CREATE INDEX idx_operators_organisation_id
+            ON operators(organisation_id);
 
 
--- =========================================
--- USER ROLES (SCOPED TO ORGANISATION)
--- =========================================
-create table user_roles (
-    user_id uuid
-        references auth.users(id)
-        on delete cascade,
+        -- 6. MEMBERS
+        CREATE TABLE members (
+            id              uuid PRIMARY KEY,
+            operator_id     uuid NOT NULL,
+            organisation_id uuid NOT NULL,
+            username        text NOT NULL UNIQUE,
+            first_name      text NOT NULL,
+            created_at      timestamptz NOT NULL DEFAULT now(),
 
-    role_id uuid
-        references roles(id)
-        on delete cascade,
+            CONSTRAINT fk_member_user
+                FOREIGN KEY (id)
+                REFERENCES auth.users(id)
+                ON DELETE CASCADE,
 
-    organisation_id uuid
-        references organisations(id)
-        on delete cascade,
+            CONSTRAINT fk_member_operator_org
+                FOREIGN KEY (operator_id, organisation_id)
+                REFERENCES operators(id, organisation_id)
+                ON DELETE CASCADE
+        );
 
-    primary key (user_id, role_id, organisation_id)
-);
+        CREATE INDEX idx_members_operator_id
+            ON members(operator_id);
 
-create index idx_user_roles_user
-on user_roles(user_id);
+        CREATE INDEX idx_members_organisation_id
+            ON members(organisation_id);
 
-create index idx_user_roles_role
-on user_roles(role_id);
 
-create index idx_user_roles_org
-on user_roles(organisation_id);
-                
--- =========================================
--- RLS Policies
--- =========================================
-CREATE POLICY "Enable read access for public (full table scan)"
-ON public.organisations
-AS PERMISSIVE
-FOR SELECT
-TO public -- service_role
-USING (true);
-create policy "Enable read access for all users"
-ON "public"."user_roles"
-AS PERMISSIVE
-FOR SELECT
-TO public -- service_role
-USING (
-  true
-);     
-ALTER table public.user_roles enable row level security;    
-alter table public.organisations enable row level security;       
+        -- 7. USER_ROLES (scoped many-to-many)
+        CREATE TABLE user_roles (
+            user_id         uuid NOT NULL,
+            role_id         uuid NOT NULL
+                REFERENCES roles(id)
+                ON DELETE CASCADE,
+            organisation_id uuid NOT NULL
+                REFERENCES organisations(id)
+                ON DELETE CASCADE,
 
-    """)
+            PRIMARY KEY (user_id, role_id, organisation_id),
 
-    print("Migrations completed successfully.")
+            CONSTRAINT fk_user_roles_user
+                FOREIGN KEY (user_id)
+                REFERENCES auth.users(id)
+                ON DELETE CASCADE
+        );
 
-    conn.commit()
-    cur.close()
-    conn.close()
+        CREATE INDEX idx_user_roles_user_id
+            ON user_roles(user_id);
+
+        CREATE INDEX idx_user_roles_role_id
+            ON user_roles(role_id);
+
+        CREATE INDEX idx_user_roles_organisation_id
+            ON user_roles(organisation_id);
+
+
+        -- 8. Very permissive RLS (development only – tighten for production!)
+        ALTER TABLE organisations ENABLE ROW LEVEL SECURITY;
+        ALTER TABLE user_roles     ENABLE ROW LEVEL SECURITY;
+
+        CREATE POLICY "dev_read_all_organisations"
+            ON organisations FOR SELECT
+            USING (true);
+
+        CREATE POLICY "dev_read_all_user_roles"
+            ON user_roles FOR SELECT
+            USING (true);
+        """
+
+        cur.execute(migration_sql)
+
+        conn.commit()
+        print("Migrations completed successfully.")
+
+    except Error as e:
+        print(f"Error during migration: {e}")
+        if conn:
+            conn.rollback()
+
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 if __name__ == "__main__":
