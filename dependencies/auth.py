@@ -2,8 +2,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Annotated
 from supabase import Client
-from blustorymicroservices.BluStoryAccounts.dependencies.externalclients import get_auth_client
+from blustorymicroservices.BluStoryAccounts.dependencies.externalclients import get_auth_provider
 from blustorymicroservices.BluStoryAccounts.models.auth import AuthenticatedOperator, AuthenticatedMember, UserRoles, AuthenticatedOrganisationAdmin
+from blustorymicroservices.BluStoryAccounts.providers.interfaces.AuthProvider import AuthProvider
 
 security = HTTPBearer(scheme_name="Bearer", auto_error=False)
 
@@ -24,7 +25,7 @@ def get_bearer_token(
 
 async def get_current_organisation_admin(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
-    supabase: Client = Depends(get_auth_client),
+    auth_client: AuthProvider = Depends(get_auth_provider),
 ) -> AuthenticatedOrganisationAdmin:  # or your User model
     """
     Dependency: extracts & verifies Supabase JWT from Authorization: Bearer <token>
@@ -39,7 +40,7 @@ async def get_current_organisation_admin(
 
     token = credentials.credentials
     # This verifies signature, expiration, audience, etc.
-    auth_response = supabase.auth.get_user(token)
+    auth_response = auth_client.get_user_by_token(token)
 
     if not auth_response.user:
         raise ValueError("No user in response")
@@ -64,7 +65,7 @@ async def get_current_organisation_admin(
 
 async def get_current_operator(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
-    supabase: Client = Depends(get_auth_client),
+    auth_client: AuthProvider = Depends(get_auth_provider),
 ) -> AuthenticatedOperator:  # or your User model
     """
     Dependency: extracts & verifies Supabase JWT from Authorization: Bearer <token>
@@ -79,7 +80,7 @@ async def get_current_operator(
 
     token = credentials.credentials
     # This verifies signature, expiration, audience, etc.
-    auth_response = supabase.auth.get_user(token)
+    auth_response = auth_client.get_user_by_token(token)
 
     if not auth_response.user:
         raise ValueError("No user in response")
@@ -111,7 +112,7 @@ async def get_current_operator(
     )
 async def get_current_member(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
-    supabase: Client = Depends(get_auth_client),
+    auth_client: AuthProvider = Depends(get_auth_provider),
 ) -> AuthenticatedMember:  # or your User model
     """
     Dependency: extracts & verifies Supabase JWT from Authorization: Bearer <token>
@@ -126,7 +127,7 @@ async def get_current_member(
 
     token = credentials.credentials
     # This verifies signature, expiration, audience, etc.
-    auth_response = supabase.auth.get_user(token)
+    auth_response = auth_client.get_user_by_token(token)
 
     if not auth_response.user:
         raise ValueError("No user in response")

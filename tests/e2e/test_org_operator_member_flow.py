@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 from blustorymicroservices.BluStoryAccounts.dependencies.clients import get_organisation_client
-from blustorymicroservices.BluStoryAccounts.dependencies.externalclients import get_db_client
+from blustorymicroservices.BluStoryAccounts.dependencies.externalclients import get_db_provider
 from blustorymicroservices.BluStoryAccounts.models.responses.api.members.CreatedMemberResponse import CreatedMemberResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.members.MemberResponse import MemberResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
@@ -16,7 +16,6 @@ from blustorymicroservices.BluStoryAccounts.tests.mocks.supabase_client import g
 
 client = TestClient(app)
 # Override the dependency in FastAPI app
-app.dependency_overrides[get_db_client] = get_test_supabase_client
 
 
 app.dependency_overrides[get_organisation_client] = lambda: MockOrganisationClient()
