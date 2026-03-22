@@ -1,6 +1,11 @@
+from typing import Annotated
+
+from fastapi import Depends
 from fastapi.testclient import TestClient
+from sqlalchemy import text
+from blustorymicroservices.BluStoryAccounts import settings
 from blustorymicroservices.BluStoryAccounts.dependencies.clients import get_organisation_client
-from blustorymicroservices.BluStoryAccounts.dependencies.externalclients import get_db_provider
+from blustorymicroservices.BluStoryAccounts.dependencies.externalclients import get_auth_provider, get_db_provider, get_pgsql_client, get_regression_db_provider
 from blustorymicroservices.BluStoryAccounts.models.responses.api.members.CreatedMemberResponse import CreatedMemberResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.members.MemberResponse import MemberResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
@@ -10,21 +15,54 @@ from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.O
 from blustorymicroservices.BluStoryAccounts.main import app
 import uuid
 import pytest
+from blustorymicroservices.BluStoryAccounts.providers.pgsqlalchemy.SQLAlchemyDatabaseProvider import SQLAlchemyDatabaseProvider
+from blustorymicroservices.BluStoryAccounts.settings.config import get_settings
 from blustorymicroservices.BluStoryAccounts.tests.helpers.CleanUpDatabase import CleanUpDatabase
+from blustorymicroservices.BluStoryAccounts.tests.mocks.auth_provider import MockAuthProvider
 from blustorymicroservices.BluStoryAccounts.tests.mocks.organisation_client import MockOrganisationClient
-from blustorymicroservices.BluStoryAccounts.tests.mocks.supabase_client import get_test_supabase_client
+from sqlalchemy.orm import Session
 
-client = TestClient(app)
+from blustorymicroservices.BluStoryAccounts.dependencies.externalclients import get_regression_db_provider
+
+
 # Override the dependency in FastAPI app
-
+app.dependency_overrides[get_db_provider] = get_regression_db_provider
 
 app.dependency_overrides[get_organisation_client] = lambda: MockOrganisationClient()
+
+@pytest.fixture(scope="function")
+def supabase():
+# 1. Get the session (resolving the yield)
+    settings = get_settings()
+    session_gen = get_pgsql_client(settings=settings) 
+    session = next(session_gen)
+    
+    # 2. Get the provider
+    provider = get_regression_db_provider(client=session)
+    
+    yield provider
+    
+    # 3. Clean up the session
+    try:
+        next(session_gen)
+    except StopIteration:
+        pass
+@pytest.fixture(scope="function")
+def mock_auth(supabase):
+    return MockAuthProvider(db_provider=supabase)
+
+client = TestClient(app)
+
 @pytest.mark.e2e
-def test_org_operator_member_flow():
-    supabase = get_test_supabase_client()
+def test_org_operator_member_flow(supabase, mock_auth):
+    
+    app.dependency_overrides[get_auth_provider] = lambda: mock_auth
+ 
     # -------------------------
     # Step 1: OrganisationAdmin signup
     # -------------------------
+
+    
     org_email = f"org_{uuid.uuid4()}@test.com"
     username = f"member_{uuid.uuid4()}"
     org_name = f"Test Org {uuid.uuid4()}"

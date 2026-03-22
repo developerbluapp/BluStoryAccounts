@@ -85,7 +85,7 @@ class OperatorsRepository:
             self._db_client.insert(
                 "operators",
                 {
-                    "id": user["id"],
+                    "id": user.user.id,
                     "username": username,
                     "organisation_id": str(organisation_id),
                 },
@@ -95,7 +95,7 @@ class OperatorsRepository:
             self._db_client.insert(
                 "user_roles",
                 {
-                    "user_id": user["id"],
+                    "user_id": user.user.id,
                     "role_id": role["id"],
                     "organisation_id": str(organisation_id),
                 },

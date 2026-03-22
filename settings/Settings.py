@@ -27,7 +27,8 @@ class DeepLinkSettings(BaseModel):
 
 class InternalClientsSettings(BaseModel):
     organisation_service_url: ClassVar[str] = "http://127.0.0.1:8080"
-
+class PGSQLSettings(BaseModel):
+    database_url : str
 class Settings(BaseModel):
     supabase: SupabaseSettings
     email: ClassVar[type[EmailSettings]] = EmailSettings  
@@ -35,6 +36,7 @@ class Settings(BaseModel):
     deeplink: ClassVar[type[DeepLinkSettings]] = DeepLinkSettings 
     operator: ClassVar[type[OperatorSettings]] = OperatorSettings   
     internal_clients: ClassVar[type[InternalClientsSettings]] = InternalClientsSettings
+    pgsqlsettings: PGSQLSettings 
 
 
     model_config = {"env_file": ".env", "extra": "allow"}

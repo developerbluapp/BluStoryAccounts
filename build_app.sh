@@ -30,7 +30,10 @@ case "$MODE" in
     ;;
   --test)
    echo "🔧 Running Tests..."
+   docker compose -f docker-compose.local.yml up -d postgres
+   docker compose -f docker-compose.local.yml build migrate && docker compose -f docker-compose.local.yml run --rm  -e ENVIRONMENT=test migrate
    docker compose -f docker-compose.local.yml build test && docker compose -f docker-compose.local.yml run --rm test
+   docker compose -f docker-compose.local.yml stop postgres
    ;;
 
 

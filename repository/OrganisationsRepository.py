@@ -130,7 +130,7 @@ class OrganisationsRepository:
         self._db_client.insert(
             "user_roles",
             {
-                "user_id": user["id"],
+                "user_id": user.user.id,
                 "role_id": role["id"],
                 "organisation_id": organisation_id,
             },

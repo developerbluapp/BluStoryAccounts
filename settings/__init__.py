@@ -1,1 +1,1 @@
-from .Settings import EmailSettings, RoleSettings, Settings, SupabaseSettings,OperatorSettings,DeepLinkSettings, InternalClientsSettings
+from .Settings import EmailSettings, RoleSettings, Settings, SupabaseSettings,OperatorSettings,DeepLinkSettings, InternalClientsSettings,PGSQLSettings

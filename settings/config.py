@@ -5,7 +5,7 @@ from functools import lru_cache
 
 
 from blustorymicroservices.BluStoryAccounts.settings import (
-    EmailSettings, RoleSettings, Settings, SupabaseSettings,OperatorSettings,DeepLinkSettings,InternalClientsSettings)
+    EmailSettings, RoleSettings, Settings, SupabaseSettings,OperatorSettings,DeepLinkSettings,InternalClientsSettings,PGSQLSettings)
 
 
 @lru_cache
@@ -21,5 +21,7 @@ def get_settings() -> Settings:
         deep_link = DeepLinkSettings(),
         roles=RoleSettings(),
         operator=OperatorSettings(),
-        internal_clients=InternalClientsSettings()
+        internal_clients=InternalClientsSettings(),
+        pgsqlsettings=PGSQLSettings(database_url=os.environ["PGSQL_URL"])
+        
     )

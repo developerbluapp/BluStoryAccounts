@@ -24,6 +24,7 @@ bcrypt
 # -- Testing ---
 pytest
 httpx
+sqlalchemy
 # --- Dependencies pinned by FastAPI (auto-installed) ---
 # pydantic, starlette, anyio, h11, sniffio, typing-extensions
 # You don’t need to list them unless you want strict version control
