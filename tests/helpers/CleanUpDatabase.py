@@ -11,6 +11,17 @@ class CleanUpDatabase:
         if operator_id:
             db_client.delete("members",{"id":operator_id})
         if organisation_id:
-            db_client.delete("organisations",{"id":operator_id})
+            db_client.delete("organisations",{"id":organisation_id})
+                    # 5. Finally, delete from auth.users (The Root)
+        # We collect all potential user IDs to clean the auth table
+        user_ids_to_clean = []
+        if member_id: user_ids_to_clean.append(member_id)
+        if operator_id: user_ids_to_clean.append(operator_id)
+        if organisation_admin_id: user_ids_to_clean.append(organisation_admin_id)
+
+        for u_id in user_ids_to_clean:
+            db_client.delete("auth.users",{"id":u_id})
+
+
           
         

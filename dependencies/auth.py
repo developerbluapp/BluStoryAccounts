@@ -48,6 +48,7 @@ async def get_current_organisation_admin(
     user = auth_response.user
 
     roles = user.app_metadata.get("roles")
+    print("HEmoo",user)
     if UserRoles.ORGANISATION_ADMIN not in roles:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

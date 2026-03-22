@@ -102,7 +102,7 @@ class OperatorsRepository:
             )
 
             return CreatedOperatorResponse(
-                id=user["id"],
+                id=user.user.id,
                 username=username,
                 password=password,
                 organisation_id=organisation_id,

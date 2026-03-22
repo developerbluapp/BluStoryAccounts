@@ -78,7 +78,7 @@ class MembersRepository:
                     "organisation_id": str(organisation_id),
                 }
             )
-            user_id = user_data["id"]
+            user_id = user_data.user.id
 
             self._db_client.insert("members", {
                 "id": user_id,
