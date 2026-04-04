@@ -2,15 +2,15 @@
 from typing import Annotated
 from uuid import UUID
 
-from blustorymicroservices.BluStoryAccounts.dependencies.services import get_organisation_auth_service
-from blustorymicroservices.BluStoryAccounts.models.exceptions.base import \
+from blustorymicroservices.blustory_accounts_auth.dependencies.services import get_organisation_auth_service
+from blustorymicroservices.blustory_accounts_auth.models.exceptions.base import \
     AppException
 from fastapi import APIRouter, Depends, HTTPException, HTTPException
 
-from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.OrganisationSessionResponse import OrganisationSessionResponse
-from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.OrganisationAdminResponse import OrganisationAdminResponse
-from blustorymicroservices.BluStoryAccounts.models.requests import OrganisationSignupRequest, OrganisationSigninRequest
-from blustorymicroservices.BluStoryAccounts.services import OrganisationAuthService
+from blustorymicroservices.blustory_accounts_auth.models.responses.api.organisations.OrganisationSessionResponse import OrganisationSessionResponse
+from blustorymicroservices.blustory_accounts_auth.models.responses.api.organisations.OrganisationAdminResponse import OrganisationAdminResponse
+from blustorymicroservices.blustory_accounts_auth.models.requests import OrganisationSignupRequest, OrganisationSigninRequest
+from blustorymicroservices.blustory_accounts_auth.services import OrganisationAuthService
 OrganisationAuthServiceDEP = Annotated[OrganisationAuthService, Depends(get_organisation_auth_service)]
 
 router = APIRouter(prefix="/auth/organisation", tags=["auth-organisation"])

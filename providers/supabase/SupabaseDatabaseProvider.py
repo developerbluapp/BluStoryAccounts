@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 
 from supabase import Client
 
-from blustorymicroservices.BluStoryAccounts.providers.interfaces.DatabaseProvider import DatabaseProvider
+from blustorymicroservices.blustory_accounts_auth.interfaces.DatabaseProvider import DatabaseProvider
 
 
 class SupabaseDatabaseProvider(DatabaseProvider):

@@ -21,32 +21,4 @@ services:
     stdin_open: true   # equivalent to -it
     tty: true          # equivalent to -it
     restart: unless-stopped
-  postgres:
-    image: postgres:15
-    container_name: postgres
-    restart: always
-    environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydatabase
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 2s
-      timeout: 5s
-      retries: 10
-    ports:
-      - "5432:5432"   # Expose for local connections
-    volumes:
-      - pgdata:/var/lib/postgresql/data  # Persist data between restarts
 
-
-  test:
-    build:
-      context: .
-    command: pytest -s -m e2e --disable-warnings # runs and exits
-    env_file:
-      - .env
-    depends_on:
-      - postgres
-volumes:
-  pgdata:

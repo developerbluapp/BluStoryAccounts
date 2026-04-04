@@ -5,10 +5,10 @@ from typing import Any, Dict, Optional, Union
 from supabase import Client
 from gotrue.errors import AuthApiError
 
-from blustorymicroservices.BluStoryAccounts.models.exceptions.members import UserAlreadyExistsException
+from blustorymicroservices.blustory_accounts_auth.models.exceptions.members import UserAlreadyExistsException
 from uuid import UUID
 
-from blustorymicroservices.BluStoryAccounts.providers.interfaces.AuthProvider import AuthProvider
+from blustorymicroservices.blustory_accounts_auth.interfaces.AuthProvider import AuthProvider
 from gotrue.types import Session, User, UserResponse,AuthResponse, User
 
 class SupabaseAuthProvider(AuthProvider):

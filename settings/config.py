@@ -4,7 +4,7 @@ import os
 from functools import lru_cache
 
 
-from blustorymicroservices.BluStoryAccounts.settings import (
+from blustorymicroservices.blustory_accounts_auth.settings import (
     EmailSettings, RoleSettings, Settings, SupabaseSettings,OperatorSettings,DeepLinkSettings,InternalClientsSettings,PGSQLSettings)
 
 

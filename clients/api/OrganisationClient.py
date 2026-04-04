@@ -1,7 +1,7 @@
 import requests
 from uuid import UUID
 
-from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.OrganisationNameResponse import OrganisationNameResponse
+from blustorymicroservices.blustory_accounts_auth.models.responses.api.organisations.OrganisationNameResponse import OrganisationNameResponse
 
 
 class OrganisationClient:

@@ -2,13 +2,13 @@ from fastapi import Depends, HTTPException, status
 from uuid import UUID
 from typing import Annotated
 
-from blustorymicroservices.BluStoryAccounts.dependencies.auth import get_current_organisation_admin
+from blustorymicroservices.blustory_accounts_auth.dependencies.auth import get_current_organisation_admin
 
-from blustorymicroservices.BluStoryAccounts.dependencies.services import get_operator_service
-from blustorymicroservices.BluStoryAccounts.models.auth.AuthenticatedOrganisationAdmin import AuthenticatedOrganisationAdmin
-from blustorymicroservices.BluStoryAccounts.models.dtos.Operator import Operator
-from blustorymicroservices.BluStoryAccounts.models.exceptions.base import AppException
-from blustorymicroservices.BluStoryAccounts.services.OperatorService import OperatorService
+from blustorymicroservices.blustory_accounts_auth.dependencies.services import get_operator_service
+from blustorymicroservices.blustory_accounts_auth.models.auth.AuthenticatedOrganisationAdmin import AuthenticatedOrganisationAdmin
+from blustorymicroservices.blustory_accounts_auth.models.dtos.Operator import Operator
+from blustorymicroservices.blustory_accounts_auth.models.exceptions.base import AppException
+from blustorymicroservices.blustory_accounts_auth.services.OperatorService import OperatorService
 
 OperatorServiceDEP = Annotated[OperatorService, Depends(get_operator_service)]
 

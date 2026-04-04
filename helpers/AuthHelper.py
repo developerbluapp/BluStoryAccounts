@@ -1,4 +1,4 @@
-from blustorymicroservices.BluStoryAccounts.settings.config import get_settings
+from blustorymicroservices.blustory_accounts_auth.settings.config import get_settings
 import string
 import secrets
 import random

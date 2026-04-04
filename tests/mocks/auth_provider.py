@@ -8,8 +8,8 @@ from sqlalchemy import text
 from gotrue.types import User, UserResponse, AuthResponse, Session
 
 # Local Imports
-from blustorymicroservices.BluStoryAccounts.providers.interfaces.AuthProvider import AuthProvider
-from blustorymicroservices.BluStoryAccounts.providers.pgsqlalchemy.SQLAlchemyDatabaseProvider import SQLAlchemyDatabaseProvider
+from blustorymicroservices.blustory_accounts_auth.interfaces.AuthProvider import AuthProvider
+from blustorymicroservices.blustory_accounts_auth.pgsqlalchemy.SQLAlchemyDatabaseProvider import SQLAlchemyDatabaseProvider
 
 class MockAuthProvider(AuthProvider):
     def __init__(self, db_provider: SQLAlchemyDatabaseProvider):

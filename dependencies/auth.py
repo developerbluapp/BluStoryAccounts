@@ -2,9 +2,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Annotated
 from supabase import Client
-from blustorymicroservices.BluStoryAccounts.dependencies.externalclients import get_auth_provider
-from blustorymicroservices.BluStoryAccounts.models.auth import AuthenticatedOperator, AuthenticatedMember, UserRoles, AuthenticatedOrganisationAdmin
-from blustorymicroservices.BluStoryAccounts.providers.interfaces.AuthProvider import AuthProvider
+from blustorymicroservices.blustory_accounts_auth.dependencies.externalclients import get_auth_provider
+from blustorymicroservices.blustory_accounts_auth.models.auth import AuthenticatedOperator, AuthenticatedMember, UserRoles, AuthenticatedOrganisationAdmin
+from blustorymicroservices.blustory_accounts_auth.providers.interfaces.AuthProvider import AuthProvider
 
 security = HTTPBearer(scheme_name="Bearer", auto_error=False)
 

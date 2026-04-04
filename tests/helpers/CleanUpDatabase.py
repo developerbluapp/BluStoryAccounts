@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from blustorymicroservices.BluStoryAccounts.providers.pgsqlalchemy.SQLAlchemyDatabaseProvider import SQLAlchemyDatabaseProvider
+from blustorymicroservices.blustory_accounts_auth.pgsqlalchemy.SQLAlchemyDatabaseProvider import SQLAlchemyDatabaseProvider
 class CleanUpDatabase:
     @staticmethod
     def cleanup_test_data(db_client: SQLAlchemyDatabaseProvider, member_id=None, operator_id=None, organisation_admin_id=None,organisation_id=None):

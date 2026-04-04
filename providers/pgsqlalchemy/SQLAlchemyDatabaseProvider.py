@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional, Type
 from sqlalchemy.orm import Session
 from sqlalchemy import MetaData, select, update as sa_update, delete as sa_delete
 
-from blustorymicroservices.BluStoryAccounts.providers.interfaces.DatabaseProvider import DatabaseProvider
+from blustorymicroservices.blustory_accounts_auth.interfaces.DatabaseProvider import DatabaseProvider
 from typing import Any, Dict, List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import Table, select, update as sa_update, delete as sa_delete

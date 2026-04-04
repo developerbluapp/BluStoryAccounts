@@ -5,24 +5,24 @@ from fastapi.testclient import TestClient
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from blustorymicroservices.BluStoryAccounts.main import app
-from blustorymicroservices.BluStoryAccounts.dependencies.clients import get_organisation_client
-from blustorymicroservices.BluStoryAccounts.dependencies.externalclients import (
+from blustorymicroservices.blustory_accounts_auth.main import app
+from blustorymicroservices.blustory_accounts_auth.dependencies.clients import get_organisation_client
+from blustorymicroservices.blustory_accounts_auth.dependencies.externalclients import (
     get_auth_provider, 
     get_db_provider, 
     get_pgsql_client, 
     get_regression_db_provider
 )
-from blustorymicroservices.BluStoryAccounts.models.responses.api.members.CreatedMemberResponse import CreatedMemberResponse
-from blustorymicroservices.BluStoryAccounts.models.responses.api.members.MemberResponse import MemberResponse
-from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
-from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.OperatorResponse import OperatorResponse
-from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.OperatorSessionReponse import OperatorSessionResponse
-from blustorymicroservices.BluStoryAccounts.models.responses.api.organisations.OrganisationSessionResponse import OrganisationSessionResponse
-from blustorymicroservices.BluStoryAccounts.settings.config import get_settings
-from blustorymicroservices.BluStoryAccounts.tests.helpers.CleanUpDatabase import CleanUpDatabase
-from blustorymicroservices.BluStoryAccounts.tests.mocks.auth_provider import MockAuthProvider
-from blustorymicroservices.BluStoryAccounts.tests.mocks.organisation_client import MockOrganisationClient
+from blustorymicroservices.blustory_accounts_auth.models.responses.api.members.CreatedMemberResponse import CreatedMemberResponse
+from blustorymicroservices.blustory_accounts_auth.models.responses.api.members.MemberResponse import MemberResponse
+from blustorymicroservices.blustory_accounts_auth.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
+from blustorymicroservices.blustory_accounts_auth.models.responses.api.operators.OperatorResponse import OperatorResponse
+from blustorymicroservices.blustory_accounts_auth.models.responses.api.operators.OperatorSessionReponse import OperatorSessionResponse
+from blustorymicroservices.blustory_accounts_auth.models.responses.api.organisations.OrganisationSessionResponse import OrganisationSessionResponse
+from blustorymicroservices.blustory_accounts_auth.settings.config import get_settings
+from blustorymicroservices.blustory_accounts_auth.tests.helpers.CleanUpDatabase import CleanUpDatabase
+from blustorymicroservices.blustory_accounts_auth.tests.mocks.auth_provider import MockAuthProvider
+from blustorymicroservices.blustory_accounts_auth.tests.mocks.organisation_client import MockOrganisationClient
 
 # -------------------------
 # Dependency Overrides

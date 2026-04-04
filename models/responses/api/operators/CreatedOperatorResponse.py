@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from blustorymicroservices.BluStoryAccounts.models.dtos.Operator import Operator
+from blustorymicroservices.blustory_accounts_auth.models.dtos.Operator import Operator
 
 
 class CreatedOperatorResponse(BaseModel):
