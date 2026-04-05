@@ -3,6 +3,7 @@ import secrets
 import string
 from uuid import UUID
 
+from blustorymicroservices.BluStoryAccounts.repository.OrganisationsRepository import OrganisationsRepository
 from blustorymicroservices.BluStoryAccounts.clients.api.OrganisationClient import OrganisationClient
 from blustorymicroservices.BluStoryAccounts.helpers.OrganisationHelper import OrganisationHelper
 from blustorymicroservices.BluStoryAccounts.models.dtos import \
@@ -15,10 +16,11 @@ from blustorymicroservices.BluStoryAccounts.settings.config import get_settings
 from blustorymicroservices.BluStoryAccounts.helpers.AuthHelper import AuthHelper
 
 class OperatorService:
-    def __init__(self, operator_repo: OperatorsRepository, member_repo: MembersRepository, organisation_client: OrganisationClient):
+    def __init__(self, operator_repo: OperatorsRepository, member_repo: MembersRepository, organisation_repo : OrganisationsRepository):
         self._operator_repo = operator_repo
         self._member_repo = member_repo
-        self._organisation_client = organisation_client
+        self._organisation_repo = organisation_repo
+
 
 
     def _build_operator_email(self, username: str,organisation_name:str) -> str:
@@ -27,9 +29,9 @@ class OperatorService:
     def register_operator(self, organisation_id: UUID) -> CreatedOperatorResponse:
         username = AuthHelper.create_random_username()
         password = AuthHelper.create_random_password()  # You'll need to implement this method
-        organisation_data = self._organisation_client.get_organisation_name(organisation_id)
-        fake_email = self._build_operator_email(username, organisation_data.organisation_name)
-        return self._operator_repo.create_operator(username, password, fake_email, organisation_data.organisation_name,organisation_id)
+        organisation_data = self._organisation_repo.get_organisation_by_id(organisation_id)
+        fake_email = self._build_operator_email(username, organisation_data.name)
+        return self._operator_repo.create_operator(username, password, fake_email, organisation_data.name,organisation_id)
     def reset_password(self, organisation_id: UUID, operator_id: UUID) ->ResetOperatorPasswordResponse:
         new_password = AuthHelper.create_random_password()
         return self._operator_repo.reset_password(organisation_id, operator_id, new_password)

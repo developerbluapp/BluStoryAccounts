@@ -18,8 +18,8 @@ from supabase import Client
 def get_member_service(member_repo: MembersRepository = Depends(get_member_repository ), operator_repo: OperatorsRepository = Depends(get_operator_repository)) -> MemberService:
     return MemberService(member_repo, operator_repo)
 
-def get_operator_service(operator_repo: OperatorsRepository = Depends(get_operator_repository),member_repo: MembersRepository = Depends(get_member_repository),organisation_client: OrganisationClient = Depends(get_organisation_client)) -> OperatorService:
-    return OperatorService(operator_repo, member_repo, organisation_client)
+def get_operator_service(operator_repo: OperatorsRepository = Depends(get_operator_repository),member_repo: MembersRepository = Depends(get_member_repository),organisation_repo: OrganisationsRepository = Depends(get_organisation_admin_repository)) -> OperatorService:
+    return OperatorService(operator_repo, member_repo, organisation_repo)
 
 def get_organisation_service(organisation_repo: OrganisationsRepository = Depends(get_organisation_admin_repository)) -> OrganisationService:
     return OrganisationService(organisation_repo)

@@ -12,13 +12,13 @@ import pytest
 from blustorymicroservices.BluStoryAccounts.tests.helpers.CleanUpDatabase import CleanUpDatabase
 from blustorymicroservices.BluStoryAccounts.tests.mocks.organisation_client import MockOrganisationClient
 from blustorymicroservices.BluStoryAccounts.tests.mocks.supabase_client import get_test_supabase_client
-
+#
 client = TestClient(app)
 # Override the dependency in FastAPI app
 app.dependency_overrides[get_supabase_client] = get_test_supabase_client
 
 
-app.dependency_overrides[get_organisation_client] = lambda: MockOrganisationClient()
+#app.dependency_overrides[get_organisation_client] = lambda: MockOrganisationClient()
 @pytest.mark.e2e
 def test_org_operator_member_flow():
     supabase = get_test_supabase_client()
