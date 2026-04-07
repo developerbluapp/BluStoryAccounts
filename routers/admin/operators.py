@@ -12,6 +12,7 @@ from blustorymicroservices.BluStoryAccounts.models.requests import CreateOperato
 from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.OperatorResponse import OperatorResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.ResetOperatorPasswordResponse import ResetOperatorPasswordResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.OperatorCountResponse import OperatorCountResponse
 from blustorymicroservices.BluStoryAccounts.services import OperatorService
 from blustorymicroservices.BluStoryAccounts.dependencies import get_operator_service
 from blustorymicroservices.BluStoryAccounts.services import OperatorService
@@ -40,6 +41,15 @@ def create_operator(
 ):
     organisation_id = current_organisation.organisation_id
     return operator_service.register_operator(organisation_id)
+
+@router.get("/count", response_model=OperatorCountResponse)
+def get_operator_count(
+    operator_service: OperatorServiceDEP,
+    current_organisation: AuthenticatedOrganisationAdminDEP,
+):
+    organisation_id = current_organisation.organisation_id
+    count = operator_service.get_operator_count(organisation_id)
+    return OperatorCountResponse(count=count)
 
 
 @router.get("", response_model=list[OperatorResponse])

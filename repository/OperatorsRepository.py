@@ -21,10 +21,10 @@ from supabase import Client, create_client
 from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.OperatorResponse import OperatorResponse
 from blustorymicroservices.BluStoryAccounts.models.exceptions.members import UserAlreadyExistsException
 from gotrue.errors import AuthApiError
+
 class OperatorsRepository:
     def __init__(self, client: Client):
         self._client = client
-
 
     def _map_supabase_auth_user_to_operator(self, user: SupabaseUserResponse, username: str) -> Operator:
         return Operator(
@@ -42,6 +42,7 @@ class OperatorsRepository:
             updated_at=user.updated_at,
             is_anonymous=user.is_anonymous
         )
+
     def _map_supabase_auth_user_to_organisation(self, user: SupabaseUserResponse,organisation_name: str) -> OrganisationAdmin:
         return OrganisationAdmin(
             id=user.id,
@@ -60,12 +61,8 @@ class OperatorsRepository:
         )
 
     def create_operator(self,username: str,password:str,fake_email:str,organisation_name: str,organisation_id: UUID) -> CreatedOperatorResponse:
-        
         try:
-  
             role_response = self._client.table("roles").select("*").eq("name", UserRoles.OPERATOR).maybe_single().execute()
-            
-
             roles = Roles(roles=[role_response.data["name"]])
             response = self._client.auth.admin.create_user({
                 "email": fake_email,
@@ -95,50 +92,12 @@ class OperatorsRepository:
                 password=password,
                 organisation_id=organisation_id
             )
-        
         except AuthApiError as e:
             if "already been registered" in str(e):
                 raise UserAlreadyExistsException(username=username)
             else:
                 raise
-    
-    # Deprecated
-    def signup_operator(self, auth_operator_dto: AuthOperator) -> OperatorSession:
-        try:
-                # 1. Sign up user
-            role_response = self._client.table("roles").select("*").eq("name", UserRoles.OPERATOR).maybe_single().execute()
-            roles = Roles(roles=[role_response.data["name"]])
-            response = self._client.auth.admin.create_user({
-                "email": auth_operator_dto.email,
-                "password": auth_operator_dto.password,
-                "email_confirm": True,
-                "user_metadata": {"avatar_url": "https://picsum.photos/id/237/200/300"},
-                "app_metadata": {"roles": roles.model_dump()["roles"]} 
-            })
-            self._client.table("operators").insert({
-                "id": str(response.user.id)
-            }).execute()
-            self._client.table("user_roles").insert({
-                "user_id": response.user.id,
-                "role_id": role_response.data["id"]
-            }).execute()
-                        # 2. Sign in the user to get a session
-            session_response = self._client.auth.sign_in_with_password({
-                "email": auth_operator_dto.email,
-                "password": auth_operator_dto.password
-            })
-            if "error" in session_response and session_response["error"]:
-                raise HTTPException(status_code=400, detail=session_response["error"]["message"])
-            operator = self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**response.user.model_dump()))
-            return OperatorSession(
-                operator=operator,
-                session=session_response.session
-            )
-        except AuthApiError as e:
-            if "already been registered" in str(e):
-                raise UserSignupAlreadyExistsException(email=auth_operator_dto.username)
-            else:
-                raise
+
     def signin_operator(self, auth_operator_dto: AuthOperator) -> OperatorSession:
         try:
             operators_response = self._client.table("operators").select("id").eq("username", auth_operator_dto.username).maybe_single().execute()
@@ -163,15 +122,16 @@ class OperatorsRepository:
             )
         except AuthApiError as e:
             raise HTTPException(status_code=400, detail=str(e))
+
     def get_operator_by_id(self, operator_id: UUID) -> Operator | None:
         response = self._client.auth.admin.get_user_by_id(str(operator_id))
         if not response.user:
             return None
         return self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**response.user.model_dump()))
+
     def get_operators_by_organisation(self, organisation_id: UUID) -> list[Operator]:
         operators_response = self._client.table("operators").select("*").eq("organisation_id", str(organisation_id)).execute()
         operators = []
-        print(operators_response.data,"operators response data in repo",organisation_id)
         for operator_record in operators_response.data:
             user_response = self._client.auth.admin.get_user_by_id(operator_record["id"])
             if user_response.user:
@@ -179,8 +139,14 @@ class OperatorsRepository:
                 operator = self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**user_response.user.model_dump()),username=username)
                 operators.append(operator)
         return operators
+
+    def count_operators_by_organisation(self, organisation_id: UUID) -> int:
+        response = self._client.table("operators").select("id").eq("organisation_id", str(organisation_id)).execute()
+        count = len(response.data)
+        print(f"DEBUG: count_operators_by_organisation for {organisation_id} is {count}")
+        return count
+
     def reset_password(self, organisation_id: UUID, operator_id: UUID, new_password: str) -> ResetOperatorPasswordResponse:
-        # Reset password using the user's ID
         operators_response = self._client.table("operators").select("*").eq("organisation_id", str(organisation_id)).eq("id", str(operator_id)).maybe_single().execute()
         if not operators_response:
             raise HTTPException(status_code=404, detail="Operator not found or not apart of this organisation.")

@@ -16,12 +16,12 @@ OrganisationAuthServiceDEP = Annotated[OrganisationAuthService, Depends(get_orga
 router = APIRouter(prefix="/auth/organisation", tags=["auth-organisation"])
 
 @router.post("/signup", response_model=OrganisationSessionResponse ,status_code=201)
-def signup_organisation(body: OrganisationSignupRequest, organisation_service: OrganisationAuthServiceDEP):
+def signup_organisation_admin(body: OrganisationSignupRequest, organisation_service: OrganisationAuthServiceDEP):
     session_response= organisation_service.signup_organisation(body)
     return OrganisationSessionResponse(organisation=OrganisationAdminResponse(id=session_response.organisation.id,email=session_response.organisation.email,organisation_id=session_response.organisation.organisation_id,organisation_name=session_response.organisation.organisation_name),session=session_response.session) 
 
 @router.post("/signin", response_model=OrganisationSessionResponse ,status_code=201)
-def signin_organisation(body: OrganisationSigninRequest, organisation_service: OrganisationAuthServiceDEP):
+def signin_organisation_admin(body: OrganisationSigninRequest, organisation_service: OrganisationAuthServiceDEP):
     session_response= organisation_service.signin_organisation(body)
     return OrganisationSessionResponse(organisation=OrganisationAdminResponse(id=session_response.organisation.id,email=session_response.organisation.email,organisation_id=session_response.organisation.organisation_id,organisation_name=session_response.organisation.organisation_name),session=session_response.session) 
 

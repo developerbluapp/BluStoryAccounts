@@ -71,6 +71,7 @@ class MembersRepository:
 
 
             fake_email = self._build_member_email(username,operator_id,organisation_id)
+            print(f"Creating member with email: {fake_email}")  # Debug log
             password = AuthHelper.create_random_password()
             roles = Roles(roles=[role_response.data["name"]])
             response = self._client.auth.admin.create_user({
@@ -117,6 +118,20 @@ class MembersRepository:
             raise HTTPException(status_code=404,detail="No Members exist.")
 
         return [Member(**s) for s in response.data]
+
+    def get_members_by_organisation(self, organisation_id: UUID) -> list[Member]:
+        response = self._client.table("members")\
+            .select("*")\
+            .eq("organisation_id", str(organisation_id))\
+            .execute()
+        return [Member(**s) for s in response.data]
+
+    def count_members_by_organisation(self, organisation_id: UUID) -> int:
+        response = self._client.table("members")\
+            .select("id")\
+            .eq("organisation_id", str(organisation_id))\
+            .execute()
+        return len(response.data)
 
     def get_member_by_id(self, operator_id: UUID, member_id: UUID) -> Member | None:
         response = self._client.table("members")\

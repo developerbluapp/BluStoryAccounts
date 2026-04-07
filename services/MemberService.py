@@ -23,6 +23,10 @@ class MemberService:
         return self._member_repo.get_member_by_id(operator_id, member_id)
     def get_members_by_operator(self, operator_id: UUID) -> list[Member]:
         return self._member_repo.get_members_by_operator(operator_id)
+    def get_members_by_organisation(self, organisation_id: UUID) -> list[Member]:
+        return self._member_repo.get_members_by_organisation(organisation_id)
+    def get_member_count(self, organisation_id: UUID) -> int:
+        return self._member_repo.count_members_by_organisation(organisation_id)
     def delete_member_by_id(self, operator_id: UUID,member_id: UUID) -> Member | None:
         return self._member_repo.delete_member_by_id(operator_id,member_id)
     def update_member_by_id(self, operator_id: UUID, member_id: UUID,update_data:UpdateMember) -> Member | None:

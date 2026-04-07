@@ -39,3 +39,5 @@ class OperatorService:
         return self._operator_repo.get_operator_by_id(operator_id)
     def get_operators_by_organisation(self, organisation_id: UUID) -> list[Operator]:
         return self._operator_repo.get_operators_by_organisation(organisation_id)
+    def get_operator_count(self, organisation_id: UUID) -> int:
+        return self._operator_repo.count_operators_by_organisation(organisation_id)

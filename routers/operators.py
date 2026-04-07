@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends
 from blustorymicroservices.BluStoryAccounts.models.requests import CreateOperatorRequest
 from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.CreatedOperatorResponse import CreatedOperatorResponse
 from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.OperatorResponse import OperatorResponse
+from blustorymicroservices.BluStoryAccounts.models.responses.api.operators.ResetOperatorPasswordResponse import ResetOperatorPasswordResponse
 from blustorymicroservices.BluStoryAccounts.services import OperatorService
 from blustorymicroservices.BluStoryAccounts.dependencies import get_operator_service
 from blustorymicroservices.BluStoryAccounts.services import OperatorService
@@ -26,3 +27,12 @@ async def get_my_profile(current_user: AuthenticatedOperatorDEP, operator_servic
     return OperatorResponse(
         id=operator.id,
         email=operator.email)
+@router.post("/reset-password/{operator_id}", response_model=ResetOperatorPasswordResponse, status_code=201)
+def reset_password(
+    operator_id: UUID,
+    operator_service: OperatorServiceDEP,
+    current_organisation: AuthenticatedOperatorDEP,
+):
+    organisation_id = current_organisation.organisation_id
+
+    return operator_service.reset_password(organisation_id, operator_id)
