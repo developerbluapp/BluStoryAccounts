@@ -80,7 +80,7 @@ class MembersRepository:
                 "email_confirm": True,
                 "user_metadata": {"avatar_url": "https://picsum.photos/id/237/200/300"},
                 "app_metadata": {"roles": roles.model_dump()["roles"],
-                                "operator_id": operator_id,
+                                "operator_id": str(operator_id),
                                 "organisation_id":str(organisation_id) } 
             })
             self._client.table("members").insert({

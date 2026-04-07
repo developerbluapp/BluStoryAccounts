@@ -73,3 +73,29 @@ def get_members(
 async def generate_deep_link(body: GenerateDeepLinkRequest, member_service: MemberServiceDEP, current_admin: AuthAdminDEP):
     organisation_id = current_admin.organisation_id
     return member_service.generate_member_deep_link_as_admin(organisation_id,body.member_id)
+
+@router.get("/operator/{operator_id}", response_model=list[MemberResponse])
+def get_members_by_operator(
+    operator_id: UUID,
+    member_service: MemberServiceDEP,
+    current_admin: AuthAdminDEP,
+):
+    members = member_service.get_members_by_operator(operator_id)
+    return [
+        MemberResponse(id=s.id, username=s.username, first_name=s.first_name)
+        for s in members
+    ]
+
+@router.post("/operator/{operator_id}", response_model=CreatedMemberResponse, status_code=201)
+def create_member_for_operator(
+    operator_id: UUID,
+    body: CreateUserRequest,
+    member_service: MemberServiceDEP,
+    current_admin: AuthAdminDEP,
+):
+    return member_service.register_member(
+        body.username,
+        body.first_name,
+        operator_id=operator_id,
+        organisation_id=current_admin.organisation_id
+    )
