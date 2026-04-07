@@ -102,7 +102,9 @@ class MembersRepository:
             return Member(
                 id=response.user.id,
                 username=username,
-                first_name=first_name
+                first_name=first_name,
+                operator_id=operator_id,
+                organisation_id=organisation_id
             )
         except AuthApiError as e:
             if "already been registered" in str(e):
@@ -125,6 +127,18 @@ class MembersRepository:
             .eq("organisation_id", str(organisation_id))\
             .execute()
         return [Member(**s) for s in response.data]
+    def get_member_as_admin(self, organisation_id: UUID, member_id: UUID) -> Member:
+        print(f"Fetching member with ID {member_id} for organisation {organisation_id}")
+        response = self._client.table("members")\
+            .select("*")\
+            .eq("organisation_id", str(organisation_id))\
+            .eq("id", str(member_id))\
+            .maybe_single()\
+            .execute()
+        print(f"Supabase response: {response}")
+        if not response:
+             raise HTTPException(status_code=404,detail="Member does not exist.")
+        return Member(id=response.data["id"], username=response.data["username"], first_name=response.data["first_name"], operator_id=response.data["operator_id"], organisation_id=response.data["organisation_id"]) if response else None
 
     def count_members_by_organisation(self, organisation_id: UUID) -> int:
         response = self._client.table("members")\
@@ -142,7 +156,7 @@ class MembersRepository:
             .execute()
         if not response:
              raise HTTPException(status_code=404,detail="Member does not exist.")
-        return Member(id=response.data["id"], username=response.data["username"], first_name=response.data["first_name"]) if response else None
+        return Member(id=response.data["id"], username=response.data["username"], first_name=response.data["first_name"], operator_id=response.data["operator_id"], organisation_id=response.data["organisation_id"]) if response else None
 
 
     def delete_member_by_id(self, operator_id: UUID, member_id: UUID) -> Member | None:

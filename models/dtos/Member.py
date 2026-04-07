@@ -10,3 +10,5 @@ class Member(BaseModel):
     id: UUID
     username: str
     first_name: str
+    operator_id: UUID
+    organisation_id: UUID

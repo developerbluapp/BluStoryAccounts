@@ -34,6 +34,7 @@ app.include_router(auth.member.router)
 app.include_router(auth.organisationadmin.router)
 app.include_router(admin.operators.router)
 app.include_router(admin.organisations.router)
+app.include_router(admin.members.router)
 
 # main.py
 @app.exception_handler(AppException)

@@ -70,15 +70,9 @@ def create_member(
 @router.get("", response_model=list[MemberResponse])
 def get_members(
     member_service: MemberServiceDEP,
-    current_operator: Annotated[AuthenticatedOperator, Depends(get_current_operator)] = None,
-    current_admin: Annotated[AuthenticatedOrganisationAdmin, Depends(get_current_organisation_admin)] = None,
+    current_operator: AuthOperatorDEP,
 ):
-    if current_operator:
-        members = member_service.get_members_by_operator(current_operator.id)
-    elif current_admin:
-        members = member_service.get_members_by_organisation(current_admin.organisation_id)
-    else:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    members = member_service.get_members_by_operator(current_operator.id)
     
     return [
         MemberResponse(id=s.id, username=s.username, first_name=s.first_name)
@@ -88,14 +82,9 @@ def get_members(
 @router.get("/count", response_model=MemberCountResponse)
 def get_member_count(
     member_service: MemberServiceDEP,
-    current_admin: Annotated[AuthenticatedOrganisationAdmin, Depends(get_current_organisation_admin)] = None,
+    current_operator: AuthOperatorDEP
 ):
-
-    if current_admin:
-        organisation_id = current_admin.organisation_id
-    else:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-        
+    organisation_id = current_operator.organisation_id
     count = member_service.get_member_count(organisation_id)
     return MemberCountResponse(count=count)
 

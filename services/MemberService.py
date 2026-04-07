@@ -40,4 +40,10 @@ class MemberService:
             raise MemberNotFoundException(member_id=str(member_id))
         deep_link = self._member_repo.generate_setup_link(member.username,operator_id,organisation_id)
         return MemberGenerateDeepLinkResponse(deep_link=deep_link)
+    def generate_member_deep_link_as_admin(self,organisation_id: UUID, member_id: UUID) -> MemberGenerateDeepLinkResponse:
+        member = self._member_repo.get_member_as_admin(organisation_id, member_id)
+        if member is None:
+            raise MemberNotFoundException(member_id=str(member_id))
+        deep_link = self._member_repo.generate_setup_link(member.username, member.operator_id, organisation_id)
+        return MemberGenerateDeepLinkResponse(deep_link=deep_link)
     

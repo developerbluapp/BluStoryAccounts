@@ -128,7 +128,19 @@ class OperatorsRepository:
         if not response.user:
             return None
         return self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**response.user.model_dump()))
-
+    def get_operator_by_organisation(self, operator_,organisation_id: UUID) -> Operator:
+        print("Fetching operator for organisation ID:", organisation_id)
+        operators_response = self._client.table("operators").select("*").eq("organisation_id", str(organisation_id)).maybe_single().execute()
+        print("Supabase response for operator by organisation:", operators_response)
+        if not operators_response:
+            raise HTTPException(status_code=404, detail="Operator not found for the specified organisation.")
+        operator_record = operators_response.data
+        user_response = self._client.auth.admin.get_user_by_id(operator_record["id"])
+        if not user_response.user:
+            raise HTTPException(status_code=404, detail="Operator user record not found.")
+        username = operator_record["username"]
+        return self._map_supabase_auth_user_to_operator(SupabaseUserResponse(**user_response.user.model_dump()),username=username)
+    
     def get_operators_by_organisation(self, organisation_id: UUID) -> list[Operator]:
         operators_response = self._client.table("operators").select("*").eq("organisation_id", str(organisation_id)).execute()
         operators = []
