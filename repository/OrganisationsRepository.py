@@ -111,6 +111,12 @@ class OrganisationsRepository:
                 "organisation_id": organisation_id
             }).execute()
 
+            # 4.1️⃣ Add to org_admin table
+            self._client.table("org_admin").insert({
+                "id": response.user.id,
+                "organisation_id": organisation_id
+            }).execute()
+
             # 5️⃣ Sign in user to get session
             session_response = self._client.auth.sign_in_with_password({
                 "email": auth_organisation_dto.email,
@@ -240,6 +246,12 @@ class OrganisationsRepository:
             self._client.table("user_roles").insert({
                 "user_id": response.user.id,
                 "role_id": role_response.data["id"],
+                "organisation_id": str(organisation_id)
+            }).execute()
+
+            # 4️⃣ Add to org_admin table
+            self._client.table("org_admin").insert({
+                "id": response.user.id,
                 "organisation_id": str(organisation_id)
             }).execute()
             

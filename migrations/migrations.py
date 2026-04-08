@@ -24,6 +24,7 @@ create extension if not exists "uuid-ossp";
 -- =========================================
 -- Drop tables (for dev reset)
 -- =========================================
+drop table if exists org_admin cascade;
 drop table if exists user_roles cascade;
 drop table if exists members cascade;
 drop table if exists operators cascade;
@@ -54,6 +55,23 @@ create table organisations (
     name text not null,
     created_at timestamptz default now()
 );
+
+
+-- =========================================
+-- ORG ADMINS
+-- =========================================
+create table org_admin (
+    id uuid primary key
+        references auth.users(id)
+        on delete cascade,
+    organisation_id uuid not null
+        references organisations(id)
+        on delete cascade,
+    created_at timestamptz default now()
+);
+
+create index idx_org_admin_org
+on org_admin(organisation_id);
 
 
 -- =========================================
@@ -151,8 +169,17 @@ TO public -- service_role
 USING (
   true
 );     
+
+CREATE POLICY "Enable read access for all users"
+ON public.org_admin
+AS PERMISSIVE
+FOR SELECT
+TO public
+USING (true);
+
 ALTER table public.user_roles enable row level security;    
 alter table public.organisations enable row level security;       
+alter table public.org_admin enable row level security;
 
     """)
 
