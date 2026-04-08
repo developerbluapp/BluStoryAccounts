@@ -5,3 +5,4 @@ from .auth.OperatorAuthService import OperatorAuthService
 from .OrganisationService import OrganisationService
 from .OrganisationAdminService import OrganisationAdminService
 from .auth.OrganisationAuthService import OrganisationAuthService
+from .RolesService import RolesService

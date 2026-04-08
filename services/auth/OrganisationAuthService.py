@@ -5,15 +5,17 @@ from blustorymicroservices.BluStoryAccounts.models.dtos import \
 from blustorymicroservices.BluStoryAccounts.models.auth import UserRoles
 from blustorymicroservices.BluStoryAccounts.repository.OrganisationRepository import OrganisationRepository
 from blustorymicroservices.BluStoryAccounts.repository.OrganisationAdminRepository import OrganisationAdminRepository
+from blustorymicroservices.BluStoryAccounts.services.RolesService import RolesService
 from blustorymicroservices.BluStoryAccounts.models.responses import SupabaseUserResponse
 from supabase import Client
 from gotrue.errors import AuthApiError
 from blustorymicroservices.BluStoryAccounts.models.exceptions.organisations import UserSignupAlreadyExistsException
 
 class OrganisationAuthService:
-    def __init__(self, organisation_repo: OrganisationRepository, admin_repo: OrganisationAdminRepository, supabase_client: Client):
+    def __init__(self, organisation_repo: OrganisationRepository, admin_repo: OrganisationAdminRepository, roles_service: RolesService, supabase_client: Client):
         self._organisation_repo = organisation_repo
         self._admin_repo = admin_repo
+        self._roles_service = roles_service
         self._supabase_client = supabase_client
 
     def signup_organisation(self, auth_organisation_dto: AuthOrganisation) -> OrganisationSession:
@@ -26,8 +28,7 @@ class OrganisationAuthService:
                 if e.status_code != 404:
                     raise
 
-            # 2. Get role
-            role_id = self._admin_repo.get_role_id(UserRoles.ORGANISATION_ADMIN)
+            # 2. Config
             organisation_id = str(uuid4())
             roles_dto = Roles(roles=[UserRoles.ORGANISATION_ADMIN])
 
@@ -43,8 +44,8 @@ class OrganisationAuthService:
             # 4. Create organisation (DB)
             self._organisation_repo.create_organisation(organisation_id, auth_organisation_dto.organisation_name)
 
-            # 5. Assign role and link to org (DB)
-            self._admin_repo.assign_role(response.user.id, role_id, organisation_id)
+            # 5. Assign role via RolesService and link to org (DB)
+            self._roles_service.assign_role_to_user(response.user.id, UserRoles.ORGANISATION_ADMIN, organisation_id)
             self._admin_repo.link_to_org(response.user.id, organisation_id)
 
             # 6. Sign in to get session
@@ -86,8 +87,8 @@ class OrganisationAuthService:
             # 2. Fetch user info
             user_response = self._supabase_client.auth.get_user(session_response.session.access_token)
             
-            # 3. Get organisation linked to this admin
-            organisation_id_str = self._admin_repo.get_admin_organisation_id(user_response.user.id)
+            # 3. Get organisation linked to this admin via RolesService
+            organisation_id_str = self._roles_service.get_admin_organisation_id(user_response.user.id)
             organisation_id = UUID(organisation_id_str)
             organisation_name = self._organisation_repo.get_organisation_name_by_id(organisation_id)
 
