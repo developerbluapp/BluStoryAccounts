@@ -10,7 +10,7 @@ from uuid import UUID
 class OrganisationAdmin(BaseModel):
     id: UUID
     email: EmailStr | None = None
-    organisation_id: str | None = None
+    organisation_id: UUID | str | None = None
     organisation_name: str | None = None
     phone: str | None = None
     email_confirmed_at: datetime | None = None

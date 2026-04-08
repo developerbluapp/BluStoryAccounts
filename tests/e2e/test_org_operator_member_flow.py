@@ -113,5 +113,5 @@ def test_org_operator_member_flow():
     
     assert single_member.id == member_id
     assert single_member.username == username
-    CleanUpDatabase.cleanup_test_data(supabase,member_id,operator_id,organisation_admin_id,organisation_id)
+    #CleanUpDatabase.cleanup_test_data(supabase,member_id,operator_id,organisation_admin_id,organisation_id)
     

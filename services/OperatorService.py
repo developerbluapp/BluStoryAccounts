@@ -3,7 +3,7 @@ import secrets
 import string
 from uuid import UUID
 
-from blustorymicroservices.BluStoryAccounts.repository.OrganisationsRepository import OrganisationsRepository
+from blustorymicroservices.BluStoryAccounts.repository.OrganisationRepository import OrganisationRepository
 from blustorymicroservices.BluStoryAccounts.clients.api.OrganisationClient import OrganisationClient
 from blustorymicroservices.BluStoryAccounts.helpers.OrganisationHelper import OrganisationHelper
 from blustorymicroservices.BluStoryAccounts.models.dtos import \
@@ -16,7 +16,7 @@ from blustorymicroservices.BluStoryAccounts.settings.config import get_settings
 from blustorymicroservices.BluStoryAccounts.helpers.AuthHelper import AuthHelper
 
 class OperatorService:
-    def __init__(self, operator_repo: OperatorsRepository, member_repo: MembersRepository, organisation_repo : OrganisationsRepository):
+    def __init__(self, operator_repo: OperatorsRepository, member_repo: MembersRepository, organisation_repo : OrganisationRepository):
         self._operator_repo = operator_repo
         self._member_repo = member_repo
         self._organisation_repo = organisation_repo
