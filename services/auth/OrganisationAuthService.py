@@ -86,7 +86,7 @@ class OrganisationAuthService:
             
             # 2. Fetch user info
             user_response = self._supabase_client.auth.get_user(session_response.session.access_token)
-            
+            print(user_response.user.id)
             # 3. Get organisation linked to this admin via RolesService
             organisation_id_str = self._roles_service.get_admin_organisation_id(user_response.user.id)
             organisation_id = UUID(organisation_id_str)

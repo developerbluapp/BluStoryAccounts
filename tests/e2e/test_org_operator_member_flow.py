@@ -38,7 +38,13 @@ def test_org_operator_member_flow():
     })
 
     assert signup_resp.status_code == 201
-    organisation_session = OrganisationSessionResponse(**signup_resp.json())
+    signin_resp = client.post("/auth/organisation/signin", json={
+        "email": org_email,
+        "password": "password"
+    })
+
+    assert signin_resp.status_code == 201
+    organisation_session = OrganisationSessionResponse(**signin_resp.json())
     organisation_admin_id = organisation_session.organisation.id
     organisation_id = organisation_session.organisation.organisation_id
 

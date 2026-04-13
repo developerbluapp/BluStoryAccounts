@@ -22,5 +22,5 @@ class RolesService:
         
         if not organisation_id:
             raise HTTPException(status_code=403, detail="OrganisationAdmin admin role not assigned")
-            
+        
         return organisation_id
