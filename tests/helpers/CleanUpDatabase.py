@@ -14,7 +14,7 @@ class CleanUpDatabase:
             
         if organisation_admin_id:
             supabase.auth.admin.delete_user(organisation_admin_id)
-            supabase.table("org_admin").delete().eq("id", organisation_admin_id).execute()
+            supabase.table("organisation_admin").delete().eq("id", organisation_admin_id).execute()
 
 
         

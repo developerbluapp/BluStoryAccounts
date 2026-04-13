@@ -29,7 +29,7 @@ class OrganisationAdminRepository:
         )
 
     def link_to_org(self, user_id: UUID, organisation_id: str):
-        self._client.table("org_admin").insert({
+        self._client.table("organisation_admin").insert({
             "id": str(user_id),
             "organisation_id": organisation_id
         }).execute()
